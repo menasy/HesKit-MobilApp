@@ -3,6 +3,7 @@ package com.menasy.heskit;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -44,7 +45,12 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(createEmployeeTable);
         db.execSQL(createPaymentsTable);
     }
-
+    public void onConfigure(SQLiteDatabase db) {
+        super.onConfigure(db);
+        // Yabancı anahtar kısıtlamalarını etkinleştir
+        db.setForeignKeyConstraintsEnabled(true);
+        // Veya: db.execSQL("PRAGMA foreign_keys = ON;");
+    }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EMPLOYEES);
@@ -77,5 +83,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return paymentId; // Eklenen ödemenin ID'sini döner
     }
+
+
 }
 

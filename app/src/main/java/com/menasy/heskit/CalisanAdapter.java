@@ -23,7 +23,8 @@ public class CalisanAdapter extends RecyclerView.Adapter<CalisanAdapter.CalisanH
 
     @NonNull
     @Override
-    public CalisanHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CalisanHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
+    {
         CalisanRecyclerBinding calisanRecyclerBinding = CalisanRecyclerBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false);
         return new CalisanHolder(calisanRecyclerBinding);
     }
@@ -36,7 +37,7 @@ public class CalisanAdapter extends RecyclerView.Adapter<CalisanAdapter.CalisanH
             @Override
             public void onClick(View v)
             {
-                Intent intent = new Intent(holder.itemView.getContext(),MainActivity2.class);
+                Intent intent = new Intent(holder.itemView.getContext(), MainActivity2.class);
 
                 intent.putExtra("fragment","EmpProcces");
                 intent.putExtra("Employee",emp);
@@ -53,13 +54,18 @@ public class CalisanAdapter extends RecyclerView.Adapter<CalisanAdapter.CalisanH
     public class CalisanHolder extends RecyclerView.ViewHolder
     {
         private CalisanRecyclerBinding binding;
-        public CalisanHolder(CalisanRecyclerBinding binding) {
+        public CalisanHolder(CalisanRecyclerBinding binding)
+        {
             super(binding.getRoot());
             this.binding = binding;
         }
     }
-    public void updateList(ArrayList<Employee> newList) {
-        empList = newList;
+    public void updateList(ArrayList<Employee> newList)
+    {
+        this.adapterEmpList.clear();
+        if (newList != null){
+            this.adapterEmpList.addAll(newList);
+        }
         notifyDataSetChanged();
     }
 }

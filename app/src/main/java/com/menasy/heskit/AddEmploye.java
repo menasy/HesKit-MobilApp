@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -115,7 +116,8 @@ public class AddEmploye extends Fragment {
         datePickerDialog.show();
     }
 
-    private void setDate(int selectedYear, int selectedMonth, int selectedDay, String formattedDate) {
+    private void setDate(int selectedYear, int selectedMonth, int selectedDay, String formattedDate)
+    {
         // Seçilen tarihi TextView'e set et
         bnd.editTextDate.setText(formattedDate);
 
@@ -134,10 +136,15 @@ public class AddEmploye extends Fragment {
             Toast.makeText(this.getContext(),"Kaydedilemedi !\n Lütfen Tüm Bilgileri Doldurun !",Toast.LENGTH_LONG).show();
             return;
         }
-        Employee emp = new Employee(bnd.editNameTxt.getText().toString(),bnd.editSurnameTxt.getText().toString(), dateIn);
+        Employee emp = new Employee(bnd.editNameTxt.getText().toString(), bnd.editSurnameTxt.getText().toString(), dateIn);
+        long dbId = emp.empPutDataBase();
+        Log.d("Bak", "DbId eklendi:  " + dbId);
+        emp.setDbId(dbId);
         empList.add(emp);
-        emp.empPutDataBase();
-        Toast.makeText(this.getContext(),"Kaydedildi",Toast.LENGTH_LONG).show();
+        Log.d("Bak", "DbId eklendi:  " + emp.getDbId());
+        Log.d("Bak", "Id eklendi:  " + emp.getId());
+        Calisanlar.adapter.updateList(Calisanlar.empList); // Adapteri güncelle
+        Toast.makeText(this.getContext(),"Kaydedildi", Toast.LENGTH_LONG).show();
         bnd.editNameTxt.setText("");
         bnd.editSurnameTxt.setText("");
         bnd.editTextDate.setText("");

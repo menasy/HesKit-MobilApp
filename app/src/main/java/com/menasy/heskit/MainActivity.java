@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         totalPaymentTxt = findViewById(R.id.totalPaymentTxtView);
         totalTransferTxt = findViewById(R.id.totalTransferTxtView);
         Singleton.getInstance().initDatabase(this);
+
     }
     public void handleEmp(View view)
     {

@@ -81,7 +81,7 @@ public class EmployeePayment
     public Long paymentPutDataBase(Long employeeId)
     {
         DBHelper dbHelper = Singleton.getInstance().getDataBase();
-        long paymentId = dbHelper.addPayment(this.getTakedMoney(),this.getDateInStr(),employeeId);
+        long paymentId = dbHelper.addPayment(this.getTakedMoney(),this.getDateInStr(), employeeId);
         return  paymentId;
     }
 }

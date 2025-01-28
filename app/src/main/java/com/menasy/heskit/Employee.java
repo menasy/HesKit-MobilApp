@@ -1,5 +1,8 @@
 package com.menasy.heskit;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteException;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.io.Serializable;
@@ -14,10 +17,12 @@ public class Employee implements Serializable
     }
 
     private int id;
+    private long dbId;
     private int[] dateIn;
     private String name;
     private String surName;
     private int worksDay;
+    private int totalMoney;
     private ArrayList <EmployeePayment> empPaymentLst;
 
 
@@ -73,6 +78,18 @@ public class Employee implements Serializable
     public String getDateInStr() {
         String formattedDate = dateIn[0] + "/" + dateIn[1] + "/" + dateIn[2]; // Gün/Ay/Yıl formatında
         return formattedDate;
+    }
+
+    public long getDbId() {
+        return dbId;
+    }
+
+    public void setDbId(long dbId) {
+        this.dbId = dbId;
+    }
+
+    public void setTotalMoney(int totalMoney) {
+        this.totalMoney = totalMoney;
     }
 
     public int[] getDateIn() {
@@ -160,10 +177,13 @@ public class Employee implements Serializable
         }
     }
 
-    public Long empPutDataBase()
-    {
-        DBHelper dbHelper = Singleton.getInstance().getDataBase();
-         long empId = dbHelper.addEmployee(this.name,this.surName,this.worksDay,this.getTotalMoney(),this.getDateInStr());
-         return  empId;
+    public Long empPutDataBase() {
+        try {
+            DBHelper dbHelper = Singleton.getInstance().getDataBase();
+            return dbHelper.addEmployee(this.name,this.surName,this.worksDay,this.getTotalMoney(),this.getDateInStr());
+        } catch (SQLiteException e) {
+            Log.e("DB", "Veritabanı hatası: " + e.getMessage());
+            return -1L;
+        }
     }
 }
