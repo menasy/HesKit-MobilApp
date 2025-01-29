@@ -9,6 +9,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.util.Log;
@@ -70,9 +72,18 @@ public class Calisanlar extends Fragment {
         adapter = new CalisanAdapter(empList);
         bnd.fragmentCalisanRecView.setAdapter(adapter);
         loadEmployeeDataFromDB();
+        setupClickListeners();
         return view;
     }
 
+    private void setupClickListeners() {
+        // Çalışanlar Butonu
+        bnd.addEmployee.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).navigateToAddEmp();
+            }
+        });
+    }
     public  static void loadEmployeeDataFromDB() {
         // Veritabanından çalışan verilerini çekme işlemi
         DBHelper dbHelper = Singleton.getInstance().getDataBase();

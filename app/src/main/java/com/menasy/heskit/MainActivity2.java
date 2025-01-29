@@ -33,39 +33,11 @@ public class MainActivity2 extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        String fragName = getIntent().getStringExtra("fragment");
-        if (fragName != null)
-        {
-            if (fragName.equals("Calisanlar"))
-                showFragment(new Calisanlar());
-            else if (fragName.equals("Havale"))
-                showFragment(new Havale());
-            else if (fragName.equals("EmpProcces"))
-            {
-                Employee emp = (Employee) getIntent().getSerializableExtra("Employee");
 
-                // Fragment oluştur ve veriyi aktar
-                EmployeeProcces fragmentEmpProcces = new EmployeeProcces();
-                if (emp != null) {
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("Employee", emp);
-                    fragmentEmpProcces.setArguments(bundle);
-                }
-                showFragment(fragmentEmpProcces);
-            }
-        }
 
     }
 
-    private void showFragment(Fragment fragment)
-    {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragmentContainer,fragment).commit();
-    }
-    public void addEmployeFrag(View asd)
-    {
-        showFragment(new AddEmploye());
-    }
+
+
 
 }

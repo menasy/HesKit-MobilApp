@@ -148,5 +148,8 @@ public class AddEmploye extends Fragment {
         bnd.editNameTxt.setText("");
         bnd.editSurnameTxt.setText("");
         bnd.editTextDate.setText("");
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).showFragment(new Calisanlar()); // Fragment'ı yeniden yükle
+        }
     }
 }
