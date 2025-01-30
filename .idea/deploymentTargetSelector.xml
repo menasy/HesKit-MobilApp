@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="HesKit">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-01-30T17:45:33.420417456Z">
+        <DropdownSelection timestamp="2025-01-30T18:00:52.293122390Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=R68WB02V4MN" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/home/menasy/.android/avd/Pixel_4_API_35.avd" />
             </handle>
           </Target>
         </DropdownSelection>

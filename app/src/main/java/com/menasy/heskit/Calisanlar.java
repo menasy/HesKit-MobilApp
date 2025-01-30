@@ -38,6 +38,7 @@ public class Calisanlar extends Fragment {
 
         loadEmployeeDataFromDB();
         setupClickListeners();
+//        updateSummaryViews();
         return view;
     }
 
@@ -77,12 +78,47 @@ public class Calisanlar extends Fragment {
                     emp.setDbId(dbId); // ID'yi set et
                     emp.setTotalMoney(totalMoney);
                     empList.add(emp);
+//                    updateSummaryViews();
+
                 }
             } while (cursor.moveToNext());
             cursor.close();
         }
     }
+    private  void updateSummaryViews() {
+        // Çalışan sayısını güncelle
+        int employeeCount = empList.size();
+        bnd.empCountTxtView.setText("Çalışan Sayısı: " + employeeCount);
 
+        // Toplam harçlığı hesapla ve güncelle
+        int totalPayment = getAllPayment();
+        bnd.calisanTotalPaymentTxt.setText("Toplam Harçlık: " + totalPayment + "₺");
+    }
+    private static int getAllPayment()
+    {
+        int totalPayment = 0;
+
+//        for (int i = 0; i < empList.size(); i++)
+//        {
+//            for (int j = 0; j < empList.get(i).getEmpPaymentLst().size(); j++)
+//            {
+//                Employee emp = empList.get(i);
+//                for (int k = 0; k < emp.getEmpPaymentLst().size(); k++)
+//                {
+//                    totalPayment += emp.getEmpPaymentLst().get(k).getTakedMoney();
+//                }
+//            }
+//        }
+
+        for (Employee emp : empList)
+        {
+            for (EmployeePayment empPayment : emp.getEmpPaymentLst())
+            {
+                totalPayment += empPayment.getTakedMoney();
+            }
+        }
+        return totalPayment;
+    }
     private static int[] processDateIn(String dateInStr) {
         String[] dateParts = dateInStr.split("/");
         int[] dateIn = new int[dateParts.length];
@@ -91,4 +127,5 @@ public class Calisanlar extends Fragment {
         }
         return dateIn;
     }
+
 }
