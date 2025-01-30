@@ -8,80 +8,50 @@ public class EmployeePayment
 {
     private static int index;
     static {
-        index = 0;
+        index = 1;
     }
-    private     int id;
-    private     int takedMoney;
-    private     int[] date;
+    private int id;
+    private long   dbId;
+    private int takedMoney;
+    private int[] date;
 
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setPayment(int takedMoney) {
+    public EmployeePayment(int takedMoney, int[] date) {
         this.takedMoney = takedMoney;
-    }
-
-    public void setDate(int[] date) {
         this.date = date;
-    }
-
-    public EmployeePayment(int takedMoney, int[] date)
-    {
         this.id = index++;
-        this.takedMoney = takedMoney;
-        this.date = date;
     }
 
-    public int getTakedMoney() {
-        return takedMoney;
-    }
+    // Getter ve Setter metodları
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public int getTakedMoney() { return takedMoney; }
+    public int[] getDate() { return date; }
 
-    public void setTakedMoney(int takedMoney) {
-        this.takedMoney = takedMoney;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public int getPayment() {
-        return takedMoney;
-    }
-
-    public int[] getDate() {
-        return date;
-    }
     public String getPaymentAndDate() {
-        if (date != null && date.length == 3) {
-            // Tarihi formatla
+        try {
             Calendar calendar = Calendar.getInstance();
-
-            // Aylar zaten 0 tabanlı, burada -1 yapmaya gerek yok
-            calendar.set(Calendar.DAY_OF_MONTH, date[0]);
-            calendar.set(Calendar.MONTH, date[1] - 1); // Ayı düzgün şekilde 0 tabanlı yapıyoruz
-            calendar.set(Calendar.YEAR, date[2]);
-
-            // Tarih formatlama
-            SimpleDateFormat dateFormat = new SimpleDateFormat("d.M.yyyy", new Locale("tr", "TR"));
-            String formattedDate = dateFormat.format(calendar.getTime());
-
-            // Ödeme ve tarih bilgisini döndür
-            return String.format("%d₺       %s", takedMoney, formattedDate);
-        } else {
-            return "Tarih bilgisi geçersiz!";
+            calendar.set(date[2], date[1] - 1, date[0]); // Yıl, Ay (0 tabanlı), Gün
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", new Locale("tr", "TR"));
+            return String.format("%d₺ - %s", takedMoney, sdf.format(calendar.getTime()));
+        } catch (Exception e) {
+            return "Geçersiz tarih!";
         }
     }
 
     public String getDateInStr() {
-        String formattedDate = date[0] + "." + date[1] + "." + date[2]; // Gün/Ay/Yıl formatında
-        return formattedDate;
+        return String.format("%d/%d/%d", date[0], date[1], date[2]);
     }
-    public Long paymentPutDataBase(Long employeeId)
-    {
+
+    public Long paymentPutDataBase(Long employeeId) {
         DBHelper dbHelper = Singleton.getInstance().getDataBase();
-        long paymentId = dbHelper.addPayment(this.getTakedMoney(),this.getDateInStr(), employeeId);
-        return  paymentId;
+        return dbHelper.addPayment(this.takedMoney, this.getDateInStr(), employeeId);
+    }
+
+    public long getDbId() {
+        return dbId;
+    }
+
+    public void setDbId(long dbId) {
+        this.dbId = dbId;
     }
 }

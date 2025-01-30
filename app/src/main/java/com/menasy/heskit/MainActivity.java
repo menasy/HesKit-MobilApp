@@ -16,19 +16,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main); // SADECE 1 KEZ ÇAĞRILDI
+        setContentView(R.layout.activity_main);
 
-        // WindowInsets için düzeltme
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.fragmentContainer), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // Veritabanı başlatma
         Singleton.getInstance().initDatabase(this);
 
-        // İlk fragment'ı yükle
         if (savedInstanceState == null) {
             showFragment(new Start());
         }
@@ -42,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
-    // Buton click metodları (Start fragment'tan çağrılacak)
     public void navigateToEmployees() {
         showFragment(new Calisanlar());
     }
@@ -50,10 +46,12 @@ public class MainActivity extends AppCompatActivity {
     public void navigateToTransfers() {
         showFragment(new Havale());
     }
+
     public void navigateToAddEmp() {
         showFragment(new AddEmploye());
     }
-    public void navigateToEmpProcces(){
+
+    public void navigateToEmpProcces() {
         showFragment(new EmployeeProcces());
     }
 }

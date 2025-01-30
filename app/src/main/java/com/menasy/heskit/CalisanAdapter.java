@@ -1,17 +1,14 @@
 package com.menasy.heskit;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.menasy.heskit.databinding.CalisanRecyclerBinding;
-
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class CalisanAdapter extends RecyclerView.Adapter<CalisanAdapter.CalisanHolder> {
+public class CalisanAdapter extends RecyclerView.Adapter<CalisanAdapter.CalisanHolder> implements Serializable {
 
     private ArrayList<Employee> adapterEmpList;
     private OnEmployeeClickListener listener;
@@ -42,9 +39,7 @@ public class CalisanAdapter extends RecyclerView.Adapter<CalisanAdapter.CalisanH
     @Override
     public void onBindViewHolder(@NonNull CalisanHolder holder, int position) {
         Employee emp = adapterEmpList.get(position);
-        holder.binding.calisanRecText.setText(
-                emp.getNameAndSurname() + "\t\t" + emp.getTotalMoney() + "₺"
-        );
+        holder.binding.calisanRecText.setText(emp.getNameAndSurname() + "\t\t" + emp.getTotalMoney() + "₺");
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {

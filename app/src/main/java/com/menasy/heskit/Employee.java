@@ -13,7 +13,7 @@ public class Employee implements Serializable
 {
     private static int index;
     static {
-        index = 0;
+        index = 1;
     }
 
     private int id;
@@ -144,12 +144,13 @@ public class Employee implements Serializable
 
     public int getTotalMoney()
     {
-        if (empPaymentLst == null)
-            return 0;
-        int sum = 0, i = -1;
-        while (++i < empPaymentLst.size())
-            sum += empPaymentLst.get(i).getPayment();
-        return sum;
+//        if (empPaymentLst == null)
+//            return 0;
+//        int sum = 0, i = -1;
+//        while (++i < empPaymentLst.size())
+//            sum += empPaymentLst.get(i).getTakedMoney();
+//        return sum;
+        return this.totalMoney;
     }
 
 

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -77,11 +78,14 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("amount", amount);
         values.put("paymentDate", paymentDate);
-        values.put("employeeId", employeeId); // Çalışanın ID'sini bağlıyoruz
+        values.put("employeeId", employeeId);
 
-        long paymentId = db.insert(TABLE_PAYMENTS, null, values);
-        db.close();
-        return paymentId; // Eklenen ödemenin ID'sini döner
+        try {
+            return db.insertOrThrow(TABLE_PAYMENTS, null, values);
+        } catch (SQLException e) {
+            Log.e("DB_ERROR", "Payment ekleme hatası: ", e);
+            return -1;
+        }
     }
 
 
