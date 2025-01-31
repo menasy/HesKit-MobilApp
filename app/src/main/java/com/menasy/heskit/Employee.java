@@ -33,7 +33,7 @@ public class Employee implements Serializable
         this.dateIn = new int[3];
         this.name = name;
         this.surName = surName;
-        this.empPaymentLst = null;
+        this.empPaymentLst = new ArrayList<>();
         for(int i = 0; i < 3; i++)
             this.dateIn[i] = dateIn[i];
         this.worksDay = calcWorksDay(dateIn);
@@ -144,12 +144,6 @@ public class Employee implements Serializable
 
     public int getTotalMoney()
     {
-//        if (empPaymentLst == null)
-//            return 0;
-//        int sum = 0, i = -1;
-//        while (++i < empPaymentLst.size())
-//            sum += empPaymentLst.get(i).getTakedMoney();
-//        return sum;
         return this.totalMoney;
     }
 

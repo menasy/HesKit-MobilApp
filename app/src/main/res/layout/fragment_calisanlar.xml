@@ -11,34 +11,36 @@
         android:id="@+id/linearLayout3"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="3dp"
-        android:layout_marginEnd="3dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="71dp"
+        android:layout_marginBottom="37dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/calisanTotalPaymentTxt"
+        app:layout_constraintBottom_toTopOf="@+id/empCountTxtView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchView">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/fragmentCalisanRecView"
             android:layout_width="match_parent"
-            android:layout_height="479dp"
+            android:layout_height="495dp"
             android:clipToPadding="false"
             android:padding="0dp" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout6"
-        android:layout_width="365dp"
-        android:layout_height="59dp"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.347"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/empCountTxtView">
+        app:layout_constraintTop_toBottomOf="@+id/empCountTxtView"
+        app:layout_constraintVertical_bias="0.0">
 
         <Button
             android:id="@+id/addEmployee"
@@ -54,45 +56,45 @@
 
     <TextView
         android:id="@+id/calisanTotalPaymentTxt"
-        android:layout_width="397dp"
-        android:layout_height="31dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="9dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="584dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginStart="8dp"
         android:text="Toplam Harçlık: 0"
         android:textColor="#FFEB3B"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/empCountTxtView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <SearchView
         android:id="@+id/searchView"
-        android:layout_width="399dp"
-        android:layout_height="39dp"
-
-        android:layout_marginStart="8dp"
+        android:layout_width="405dp"
+        android:layout_height="47dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
+        android:iconifiedByDefault="false"
+        android:queryHint="Çalışan ara..."
         app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.25"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/empCountTxtView"
-        android:layout_width="397dp"
-        android:layout_height="31dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="9dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="76dp"
+        android:layout_marginStart="8dp"
         android:text="Çalışan Sayısı: 0"
         android:textColor="#FFEB3B"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout6"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/calisanTotalPaymentTxt" />

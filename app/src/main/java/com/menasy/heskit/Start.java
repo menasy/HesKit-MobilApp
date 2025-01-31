@@ -10,23 +10,35 @@ import com.menasy.heskit.databinding.FragmentStartBinding;
 public class Start extends Fragment {
 
     private FragmentStartBinding binding;
+    private static Start instance;
+
+    // Instance alma metodu ekledik
+    private static Start getInstance() {
+        return instance;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentStartBinding.inflate(inflater, container, false);
+        instance = this; // Instance'ı burada set ediyoruz
         setupClickListeners();
+        updateAllStats();
         return binding.getRoot();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateAllStats();
+    }
+
     private void setupClickListeners() {
-        // Çalışanlar Butonu
         binding.empBut.setOnClickListener(v -> {
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).navigateToEmployees();
             }
         });
 
-        // Havale Butonu
         binding.havaleBut.setOnClickListener(v -> {
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).navigateToTransfers();
@@ -34,9 +46,49 @@ public class Start extends Fragment {
         });
     }
 
+    private void updateAllStats() {
+        updateTotalPayment();
+        updateEmployeeCount();
+    }
+
+    private void updateTotalPayment() {
+        new Thread(() -> {
+            int total = Singleton.getInstance().getDataBase().getTotalPayments();
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    binding.totalPaymentTxtView.setText("Toplam Harçlık: " + total + "₺");
+                });
+            }
+        }).start();
+    }
+
+    private void updateEmployeeCount() {
+        new Thread(() -> {
+            int count = Singleton.getInstance().getDataBase().getEmployeeCount();
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    binding.totalEmpStartTxt.setText("Toplam Çalışan: " + count);
+                });
+            }
+        }).start();
+    }
+
+    public static void refreshPaymentTotal() {
+        if (instance != null && instance.getActivity() != null) {
+            instance.getActivity().runOnUiThread(instance::updateTotalPayment);
+        }
+    }
+
+    public static void refreshEmployeeCount() {
+        if (instance != null && instance.getActivity() != null) {
+            instance.getActivity().runOnUiThread(instance::updateEmployeeCount);
+        }
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null; // Memory leak'i önlemek için
+        binding = null;
+        instance = null;
     }
 }

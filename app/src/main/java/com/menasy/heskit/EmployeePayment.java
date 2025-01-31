@@ -34,7 +34,12 @@ public class EmployeePayment
             Calendar calendar = Calendar.getInstance();
             calendar.set(date[2], date[1] - 1, date[0]); // Yıl, Ay (0 tabanlı), Gün
             SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", new Locale("tr", "TR"));
-            return String.format("%d₺  (%s) -> %s", takedMoney, paymentType, sdf.format(calendar.getTime()));
+            String checkPaymentType;
+            if (paymentType.matches(""))
+                checkPaymentType = "";
+            else
+                checkPaymentType = "( " + paymentType + " )";
+            return String.format("%d₺  %s -> %s", takedMoney, checkPaymentType, sdf.format(calendar.getTime()));
         } catch (Exception e) {
             return "Geçersiz tarih!";
         }

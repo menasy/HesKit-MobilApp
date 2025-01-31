@@ -45,10 +45,9 @@
         }
 
         private void setupRecyclerView() {
-            empProccAdapter = new EmployeeProccesAdapter(
-                    selectedEmployee.getEmpPaymentLst() != null ?
-                            selectedEmployee.getEmpPaymentLst() : new ArrayList<>()
-            );
+
+            empProccAdapter = new EmployeeProccesAdapter(selectedEmployee.getEmpPaymentLst());
+            empProccAdapter.setOnPaymentClickListener((payment, position) -> showDeletePaymentDialog(payment, position));
             bnd.paymentRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
             bnd.paymentRecycler.setAdapter(empProccAdapter);
         }
@@ -56,130 +55,218 @@
         private void setupButtons() {
             bnd.addMoneyBut.setOnClickListener(v -> addMoney());
             bnd.deleteEmpBut.setOnClickListener(v -> showDeleteConfirmation());
-//            bnd.cleanAllPaymentBut.setOnClickListener(v -> cleanPayment());
+            bnd.cleanAllPaymentBut.setOnClickListener(v -> showCleanAllConfirmation());
         }
-//        private  void cleanPayment()
-//        {
-//            selectedEmployee.
-//        }
-        private void addMoney() {
-            // Butonu geçici olarak devre dışı bırak
-            bnd.addMoneyBut.setEnabled(false);
 
-            // Input validasyon
-            String amountStr = bnd.moneyEditTxt.getText().toString().trim();
-            String paymentTypeStr = bnd.paymentTypeEditTxt.getText().toString().trim();
-            if(amountStr.isEmpty() || paymentTypeStr.isEmpty()) {
-                Toast.makeText(getContext(), "Lütfen tüm alanları doldurunuz!", Toast.LENGTH_SHORT).show();
-                bnd.addMoneyBut.setEnabled(true);
-                return;
-            }
+        private void showCleanAllConfirmation() {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Tüm Harçlıkları Sil")
+                    .setMessage("Tüm harçlık geçmişi kalıcı olarak silinsin mi?")
+                    .setPositiveButton("Evet", (dialog, which) -> cleanAllPayments())
+                    .setNegativeButton("Hayır", null)
+                    .show();
+        }
+        private void showDeletePaymentDialog(EmployeePayment payment, int position) {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Ödeme Silme")
+                    .setMessage(payment.getPaymentInfo() + "\nBu ödemeyi silmek istediğinize emin misiniz?")
+                    .setPositiveButton("Evet", (dialog, which) -> deletePayment(payment, position))
+                    .setNegativeButton("Hayır", null)
+                    .show();
+        }
 
-            int amount;
+        private void deletePayment(EmployeePayment payment, int position) {
+            DBHelper dbHelper = Singleton.getInstance().getDataBase();
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
             try {
-                amount = Integer.parseInt(amountStr);
-                if(amount <= 0) throw new NumberFormatException();
-            } catch(NumberFormatException e) {
-                Toast.makeText(getContext(), "Geçersiz miktar formatı!", Toast.LENGTH_SHORT).show();
-                bnd.addMoneyBut.setEnabled(true);
-                return;
-            }
-
-            SQLiteDatabase db = null;
-            try {
-                DBHelper dbHelper = Singleton.getInstance().getDataBase();
-                db = dbHelper.getWritableDatabase();
-
-                // Transaction başlat
                 db.beginTransaction();
 
-                // 1. Ödemeyi veritabanına ekle
-                long paymentId = dbHelper.addPayment(
-                        amount,
-                        paymentTypeStr,
-                        DateUtils.getCurrentDate(),
-                        selectedEmployee.getDbId()
+                // 1. Ödemeyi veritabanından sil
+                int deletedRows = db.delete(
+                        DBHelper.TABLE_PAYMENTS,
+                        "id=? AND employeeId=?",
+                        new String[]{String.valueOf(payment.getId()), String.valueOf(selectedEmployee.getDbId())}
                 );
 
-                if(paymentId == -1) {
-                    throw new Exception("Ödeme veritabanına eklenemedi");
+                if(deletedRows > 0) {
+                    // 2. Çalışanın totalMoney'sini güncelle
+                    int newTotal = selectedEmployee.getTotalMoney() - payment.getTakedMoney();
+                    selectedEmployee.setTotalMoney(newTotal);
+
+                    // 3. Veritabanında totalMoney güncelle
+                    ContentValues values = new ContentValues();
+                    values.put("totalMoney", newTotal);
+                    db.update(
+                            DBHelper.TABLE_EMPLOYEES,
+                            values,
+                            "id=?",
+                            new String[]{String.valueOf(selectedEmployee.getDbId())}
+                    );
+
+                    // 4. Listeleri güncelle
+                    selectedEmployee.getEmpPaymentLst().remove(position);
+                    empProccAdapter.notifyItemRemoved(position);
+
+                    // 5. UI ve diğer güncellemeler
+                    getActivity().runOnUiThread(() -> {
+                        bnd.takedMoneyTxtView.setText("Toplam Harçlık: " + newTotal + "₺");
+                        Calisanlar.loadEmployeeDataFromDB();
+                        Start.refreshPaymentTotal();
+                        Toast.makeText(getContext(), "Ödeme silindi", Toast.LENGTH_SHORT).show();
+                    });
+
+                    db.setTransactionSuccessful();
                 }
+            } catch(Exception e) {
+                Log.e("DELETE_PAYMENT", "Hata: ", e);
+                Toast.makeText(getContext(), "Silme işlemi başarısız: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            } finally {
+                db.endTransaction();
+                db.close();
+            }
+        }
+        private void cleanAllPayments() {
+            DBHelper dbHelper = Singleton.getInstance().getDataBase();
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-                // 2. Çalışanın istatistiklerini güncelle
-                selectedEmployee.setTotalMoney(selectedEmployee.getTotalMoney() + amount);
+            try {
+                db.beginTransaction();
 
-                ContentValues values = new ContentValues();
-                values.put("totalMoney", selectedEmployee.getTotalMoney());
-
-                int updatedRows = db.update(
-                        DBHelper.TABLE_EMPLOYEES,
-                        values,
-                        "id = ?",
+                // 1. Tüm ödemeleri sil
+                int deletedPayments = db.delete(
+                        DBHelper.TABLE_PAYMENTS,
+                        "employeeId=?",
                         new String[]{String.valueOf(selectedEmployee.getDbId())}
                 );
 
-                if(updatedRows != 1) {
-                    throw new Exception("Çalışan güncellenemedi");
+                // 2. Çalışanın totalMoney'sini sıfırla
+                ContentValues values = new ContentValues();
+                values.put("totalMoney", 0);
+                int updatedRows = db.update(
+                        DBHelper.TABLE_EMPLOYEES,
+                        values,
+                        "id=?",
+                        new String[]{String.valueOf(selectedEmployee.getDbId())}
+                );
+
+                if(updatedRows == 1) {
+                    // 3. UI ve verileri güncelle
+                    selectedEmployee.setTotalMoney(0);
+                    selectedEmployee.getEmpPaymentLst().clear();
+
+                    getActivity().runOnUiThread(() -> {
+                        empProccAdapter.updateList(new ArrayList<>());
+                        bnd.takedMoneyTxtView.setText("Toplam Harçlık: 0₺");
+                        Calisanlar.loadEmployeeDataFromDB();
+                        Start.refreshPaymentTotal();
+                        Toast.makeText(getContext(), deletedPayments + " ödeme silindi", Toast.LENGTH_SHORT).show();
+                    });
+
+                    db.setTransactionSuccessful();
                 }
-
-                // 3. Ödeme listesini güncelle
-                if(selectedEmployee.getEmpPaymentLst() == null) {
-                    selectedEmployee.setEmpPaymentLst(new ArrayList<>());
-                }
-
-                EmployeePayment newPayment = new EmployeePayment(amount, paymentTypeStr, DateUtils.getCurrentDateArray());
-                newPayment.setId((int) paymentId);
-                selectedEmployee.getEmpPaymentLst().add(0, newPayment); // Listenin başına ekle
-
-                // Transaction'ı onayla
-                db.setTransactionSuccessful();
-
-                // UI'yı güncelle
-                refreshUI();
-                Toast.makeText(getContext(), "Harçlık başarıyla eklendi", Toast.LENGTH_SHORT).show();
-
             } catch(Exception e) {
-                Log.e("DB_TRANSACTION", "Transaction hatası: ", e);
-                Toast.makeText(getContext(), "Hata: " + e.getMessage(), Toast.LENGTH_LONG).show();
-
-                // Hata durumunda değişiklikleri geri al
-                if(db != null && db.inTransaction()) {
-                    db.endTransaction();
-                }
-
-                // Önbelleği temizle
-                if(selectedEmployee.getEmpPaymentLst() != null && !selectedEmployee.getEmpPaymentLst().isEmpty()) {
-                    selectedEmployee.getEmpPaymentLst().remove(0);
-                }
-
+                Log.e("CLEAN_PAYMENTS", "Hata: ", e);
+                Toast.makeText(getContext(), "Silme işlemi başarısız: " + e.getMessage(), Toast.LENGTH_LONG).show();
             } finally {
-                try {
-                    if(db != null) {
-                        if(db.inTransaction()) {
-                            db.endTransaction();
-                        }
-                        db.close();
-                    }
-                } catch(Exception e) {
-                    Log.e("DB_CLOSE", "Bağlantı kapatma hatası: ", e);
-                }
-                bnd.addMoneyBut.setEnabled(true);
+                db.endTransaction();
+                db.close();
             }
         }
-        private void refreshUI() {
-            // Adapter'ı güncelle
-            if (empProccAdapter != null) {
-                empProccAdapter.updateList(selectedEmployee.getEmpPaymentLst());
-            }
-            // TextViews'ları güncelle
+
+
+        private void addMoney() {
+    bnd.addMoneyBut.setEnabled(false);
+
+    // Input validation
+    String amountStr = bnd.moneyEditTxt.getText().toString().trim();
+    String paymentTypeStr = bnd.paymentTypeEditTxt.getText().toString().trim();
+
+    if(amountStr.isEmpty()) {
+        Toast.makeText(getContext(), "Lütfen geçerli bir miktar giriniz!", Toast.LENGTH_SHORT).show();
+        bnd.addMoneyBut.setEnabled(true);
+        return;
+    }
+    else if (paymentTypeStr.isEmpty())
+        paymentTypeStr = "";
+
+    try {
+        int amount = Integer.parseInt(amountStr);
+        if(amount <= 0) throw new NumberFormatException();
+
+        SQLiteDatabase db = null;
+        try {
+            DBHelper dbHelper = Singleton.getInstance().getDataBase();
+            db = dbHelper.getWritableDatabase();
+            db.beginTransaction();
+
+            // 1. Add payment to database
+            long paymentId = dbHelper.addPayment(
+                    amount,
+                    paymentTypeStr,
+                    DateUtils.getCurrentDate(),
+                    selectedEmployee.getDbId()
+            );
+
+            if(paymentId == -1) throw new Exception("Ödeme veritabanına eklenemedi");
+
+            // 2. Update employee stats
+            selectedEmployee.setTotalMoney(selectedEmployee.getTotalMoney() + amount);
+
+            // Update database
+            ContentValues values = new ContentValues();
+            values.put("totalMoney", selectedEmployee.getTotalMoney());
+            int updatedRows = db.update(
+                    DBHelper.TABLE_EMPLOYEES,
+                    values,
+                    "id = ?",
+                    new String[]{String.valueOf(selectedEmployee.getDbId())}
+            );
+            if(updatedRows != 1) throw new Exception("Çalışan güncellenemedi");
+
+            // 3. Update UI
+            EmployeePayment newPayment = new EmployeePayment(amount, paymentTypeStr, DateUtils.getCurrentDateArray());
+            newPayment.setId((int) paymentId);
+
+            // Add to both adapter and underlying data
+            selectedEmployee.getEmpPaymentLst().add(0, newPayment);
+            empProccAdapter.notifyItemInserted(0);
+
+            // Scroll to top to show new item
+            bnd.paymentRecycler.smoothScrollToPosition(0);
+
+            db.setTransactionSuccessful();
+            Calisanlar.loadEmployeeDataFromDB();
+            Start.refreshEmployeeCount();
+            Start.refreshPaymentTotal();
+            Toast.makeText(getContext(), "Harçlık başarıyla eklendi", Toast.LENGTH_SHORT).show();
+            // Update summary views
             bnd.takedMoneyTxtView.setText("Toplam Harçlık: " + selectedEmployee.getTotalMoney() + "₺");
-            bnd.countDayTxt.setText("Çalışma Günü: " + selectedEmployee.getWorksDay());
             bnd.moneyEditTxt.setText("");
             bnd.paymentTypeEditTxt.setText("");
 
-            // Ana liste ve adaptörü güncelle
-            Calisanlar.adapter.updateList(Calisanlar.empList);
+        } finally {
+            if(db != null) {
+                if(db.inTransaction()) db.endTransaction();
+                db.close();
+            }
         }
+
+    } catch(NumberFormatException e) {
+        Toast.makeText(getContext(), "Geçersiz miktar formatı!", Toast.LENGTH_SHORT).show();
+    } catch(Exception e) {
+        Log.e("DB_TRANSACTION", "Hata: ", e);
+        Toast.makeText(getContext(), "Hata: " + e.getMessage(), Toast.LENGTH_LONG).show();
+
+        // Rollback UI changes
+        if(empProccAdapter != null && !selectedEmployee.getEmpPaymentLst().isEmpty()) {
+            selectedEmployee.getEmpPaymentLst().remove(0);
+            empProccAdapter.notifyItemRemoved(0);
+        }
+    } finally {
+        bnd.addMoneyBut.setEnabled(true);
+    }
+}
 
         private void showDeleteConfirmation() {
             new AlertDialog.Builder(getContext())
@@ -221,5 +308,7 @@
                 db.endTransaction();
                 db.close();
             }
+            Start.refreshEmployeeCount();
+            Start.refreshPaymentTotal();
         }
     }

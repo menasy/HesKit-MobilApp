@@ -74,7 +74,8 @@ public class AddEmploye extends Fragment {
         emp.setDbId(dbId);
         Calisanlar.empList.add(emp);
         Calisanlar.adapter.updateList(Calisanlar.empList);
-
+        Start.refreshEmployeeCount();
+        Start.refreshPaymentTotal();
         Toast.makeText(getContext(), "Başarıyla kaydedildi", Toast.LENGTH_LONG).show();
         clearFields();
     }

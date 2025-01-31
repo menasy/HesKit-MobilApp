@@ -14,7 +14,15 @@ import java.util.ArrayList;
 
 public class EmployeeProccesAdapter extends RecyclerView.Adapter<EmployeeProccesAdapter.EmplooyeProccesHolder> {
     private ArrayList<EmployeePayment> adapterEmpPymntList;
+    private OnPaymentClickListener listener;
 
+    public interface OnPaymentClickListener {
+        void onPaymentClick(EmployeePayment payment, int position);
+    }
+
+    public void setOnPaymentClickListener(OnPaymentClickListener listener) {
+        this.listener = listener;
+    }
     public EmployeeProccesAdapter(ArrayList<EmployeePayment> adapterEmpPymntList) {
         this.adapterEmpPymntList = (adapterEmpPymntList != null) ? adapterEmpPymntList : new ArrayList<>();
     }
@@ -30,9 +38,14 @@ public class EmployeeProccesAdapter extends RecyclerView.Adapter<EmployeeProcces
 
     @Override
     public void onBindViewHolder(@NonNull EmplooyeProccesHolder holder, int position) {
-        // Temizlik yaparak bağla
         EmployeePayment empPayment = adapterEmpPymntList.get(position);
         holder.binding.empProcRecTxt.setText(empPayment.getPaymentInfo());
+
+        holder.itemView.setOnClickListener(v -> {
+            if(listener != null) {
+                listener.onPaymentClick(empPayment, position);
+            }
+        });
     }
 
     @Override
@@ -55,5 +68,9 @@ public class EmployeeProccesAdapter extends RecyclerView.Adapter<EmployeeProcces
             super(binding.getRoot());
             this.binding = binding;
         }
+    }
+    public void addPayment(EmployeePayment payment) {
+        adapterEmpPymntList.add(0, payment); // Listenin başına ekle
+        notifyItemInserted(0); // Sadece eklenen öğeyi bildir
     }
 }

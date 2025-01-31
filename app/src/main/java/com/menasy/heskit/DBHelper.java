@@ -89,7 +89,61 @@ public class DBHelper extends SQLiteOpenHelper {
             return -1;
         }
     }
+    public ArrayList<EmployeePayment> getPaymentsForEmployee(long employeeId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<EmployeePayment> payments = new ArrayList<>();
 
+        Cursor cursor = db.query(
+                TABLE_PAYMENTS,
+                new String[]{"id", "amount", "paymentType", "paymentDate"},
+                "employeeId=?",
+                new String[]{String.valueOf(employeeId)},
+                null, null,
+                "id DESC" // <- Bu satır en yeni ödemeler üstte olacak şekilde sıralar
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+                int amount = cursor.getInt(cursor.getColumnIndexOrThrow("amount"));
+                String paymentType = cursor.getString(cursor.getColumnIndexOrThrow("paymentType"));
+                String paymentDate = cursor.getString(cursor.getColumnIndexOrThrow("paymentDate"));
+
+                String[] dateParts = paymentDate.split("\\.");
+                int[] dateArray = new int[]{
+                        Integer.parseInt(dateParts[0]),
+                        Integer.parseInt(dateParts[1]),
+                        Integer.parseInt(dateParts[2])
+                };
+
+                EmployeePayment payment = new EmployeePayment(amount, paymentType, dateArray);
+                payment.setId(id);
+                payments.add(payment);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return payments;
+    }
+    public int getTotalPayments() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT SUM(totalMoney) FROM " + TABLE_EMPLOYEES, null);
+        int total = 0;
+        if(cursor.moveToFirst()) {
+            total = cursor.getInt(0);
+        }
+        cursor.close();
+        return total;
+    }
+    public int getEmployeeCount() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_EMPLOYEES, null);
+        int count = 0;
+        if(cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+        }
+        cursor.close();
+        return count;
+    }
 
 }
 

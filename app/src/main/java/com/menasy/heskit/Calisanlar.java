@@ -7,7 +7,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.menasy.heskit.databinding.FragmentCalisanlarBinding;
@@ -19,6 +23,14 @@ public class Calisanlar extends Fragment {
     FragmentCalisanlarBinding bnd;
     static public ArrayList<Employee> empList = new ArrayList<>();
     static CalisanAdapter adapter;
+    private static Calisanlar instance;
+    private static ArrayList<Employee> originalEmpList = new ArrayList<>();//searchview için
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        instance = this;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -38,7 +50,8 @@ public class Calisanlar extends Fragment {
 
         loadEmployeeDataFromDB();
         setupClickListeners();
-//        updateSummaryViews();
+        updateSummaryViews();
+        setupSearchView();
         return view;
     }
 
@@ -49,7 +62,31 @@ public class Calisanlar extends Fragment {
             }
         });
     }
+    private void setupSearchView() {
+        bnd.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
 
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterList(newText.toLowerCase());
+                return true;
+            }
+        });
+    }
+
+    private void filterList(String text) {
+        ArrayList<Employee> filteredList = new ArrayList<>();
+        for(Employee employee : originalEmpList) {
+            String fullName = employee.getNameAndSurname().toLowerCase();
+            if(fullName.contains(text)) {
+                filteredList.add(employee);
+            }
+        }
+        adapter.updateList(filteredList);
+    }
     public static void loadEmployeeDataFromDB() {
         DBHelper dbHelper = Singleton.getInstance().getDataBase();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -77,48 +114,25 @@ public class Calisanlar extends Fragment {
                     Employee emp = new Employee(name, surName, dateIn);
                     emp.setDbId(dbId); // ID'yi set et
                     emp.setTotalMoney(totalMoney);
+                    ArrayList<EmployeePayment> payments = dbHelper.getPaymentsForEmployee(dbId);
+                    emp.setEmpPaymentLst(payments);
                     empList.add(emp);
-//                    updateSummaryViews();
 
                 }
             } while (cursor.moveToNext());
             cursor.close();
         }
-    }
-    private  void updateSummaryViews() {
-        // Çalışan sayısını güncelle
-        int employeeCount = empList.size();
-        bnd.empCountTxtView.setText("Çalışan Sayısı: " + employeeCount);
-
-        // Toplam harçlığı hesapla ve güncelle
-        int totalPayment = getAllPayment();
-        bnd.calisanTotalPaymentTxt.setText("Toplam Harçlık: " + totalPayment + "₺");
-    }
-    private static int getAllPayment()
-    {
-        int totalPayment = 0;
-
-//        for (int i = 0; i < empList.size(); i++)
-//        {
-//            for (int j = 0; j < empList.get(i).getEmpPaymentLst().size(); j++)
-//            {
-//                Employee emp = empList.get(i);
-//                for (int k = 0; k < emp.getEmpPaymentLst().size(); k++)
-//                {
-//                    totalPayment += emp.getEmpPaymentLst().get(k).getTakedMoney();
-//                }
-//            }
-//        }
-
-        for (Employee emp : empList)
-        {
-            for (EmployeePayment empPayment : emp.getEmpPaymentLst())
-            {
-                totalPayment += empPayment.getTakedMoney();
-            }
+        if(getInstance() != null) {
+            getInstance().updateSummaryViews();
         }
-        return totalPayment;
+        originalEmpList.clear();
+        originalEmpList.addAll(empList);
     }
+
+    private static Calisanlar getInstance() {
+        return instance;
+    }
+
     private static int[] processDateIn(String dateInStr) {
         String[] dateParts = dateInStr.split("/");
         int[] dateIn = new int[dateParts.length];
@@ -126,6 +140,22 @@ public class Calisanlar extends Fragment {
             dateIn[i] = Integer.parseInt(dateParts[i]);
         }
         return dateIn;
+    }
+
+    private void updateSummaryViews() {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                int employeeCount = empList.size();
+                bnd.empCountTxtView.setText("Çalışan Sayısı: " + employeeCount);
+
+                int totalPayment = calculateTotalPayment();
+                bnd.calisanTotalPaymentTxt.setText("Toplam Harçlık: " + totalPayment + "₺");
+            });
+        }
+    }
+
+    private int calculateTotalPayment() {
+        return Singleton.getInstance().getDataBase().getTotalPayments();
     }
 
 }
