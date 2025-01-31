@@ -13,12 +13,14 @@ public class EmployeePayment
     private int id;
     private long   dbId;
     private int takedMoney;
+    private String paymentType;
     private int[] date;
 
-    public EmployeePayment(int takedMoney, int[] date) {
+    public EmployeePayment(int takedMoney, String paymentType, int[] date) {
         this.takedMoney = takedMoney;
         this.date = date;
         this.id = index++;
+        this.paymentType = paymentType;
     }
 
     // Getter ve Setter metodları
@@ -27,12 +29,12 @@ public class EmployeePayment
     public int getTakedMoney() { return takedMoney; }
     public int[] getDate() { return date; }
 
-    public String getPaymentAndDate() {
+    public String getPaymentInfo() {
         try {
             Calendar calendar = Calendar.getInstance();
             calendar.set(date[2], date[1] - 1, date[0]); // Yıl, Ay (0 tabanlı), Gün
             SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", new Locale("tr", "TR"));
-            return String.format("%d₺ - %s", takedMoney, sdf.format(calendar.getTime()));
+            return String.format("%d₺  (%s) -> %s", takedMoney, paymentType, sdf.format(calendar.getTime()));
         } catch (Exception e) {
             return "Geçersiz tarih!";
         }
@@ -44,7 +46,7 @@ public class EmployeePayment
 
     public Long paymentPutDataBase(Long employeeId) {
         DBHelper dbHelper = Singleton.getInstance().getDataBase();
-        return dbHelper.addPayment(this.takedMoney, this.getDateInStr(), employeeId);
+        return dbHelper.addPayment(this.takedMoney, this.getPaymentType(), this.getDateInStr(), employeeId);
     }
 
     public long getDbId() {
@@ -53,5 +55,13 @@ public class EmployeePayment
 
     public void setDbId(long dbId) {
         this.dbId = dbId;
+    }
+
+    public String getPaymentType() {
+        return paymentType;
+    }
+
+    public void setPaymentType(String paymentType) {
+        this.paymentType = paymentType;
     }
 }

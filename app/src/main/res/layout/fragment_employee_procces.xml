@@ -11,10 +11,10 @@
 
     <LinearLayout
         android:id="@+id/linearLayout7"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="190dp"
         android:layout_marginTop="1dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="7dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout9"
         app:layout_constraintEnd_toEndOf="parent"
@@ -24,7 +24,7 @@
         <TextView
             android:id="@+id/empProcTitleTxt"
             android:layout_width="match_parent"
-            android:layout_height="75dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:text="Çalışan Bilgileri"
             android:textAlignment="center"
@@ -36,33 +36,36 @@
             android:id="@+id/dateInTxt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="14dp"
             android:text="Başlangıç Tarihi: "
-            android:textSize="24sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/countDayTxt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="14dp"
             android:text="Çalıştığı Gün Sayısı: 0"
-            android:textSize="24sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/takedMoneyTxtView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="14dp"
             android:text="Aldığı Toplam Harçlık: 0"
-            android:textSize="24sp" />
+            android:textSize="20sp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout9"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="274dp"
+        android:layout_marginBottom="16dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout8"
         app:layout_constraintEnd_toEndOf="parent"
@@ -70,31 +73,48 @@
         app:layout_constraintTop_toBottomOf="@+id/linearLayout7">
 
         <EditText
-            android:id="@+id/moneyEditTxt"
-            android:layout_width="wrap_content"
+            android:id="@+id/paymentTypeEditTxt"
+            android:layout_width="352dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="16dp"
             android:ems="10"
-            android:hint="Harçlık Giriniz"
-            android:inputType="numberSigned"
-            android:textAlignment="center" />
+            android:hint="Harçlık Tipi Giriniz (Berber, Çarşı)" />
+
+        <EditText
+            android:id="@+id/moneyEditTxt"
+            android:layout_width="352dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:ems="10"
+            android:hint="Harçlık Giriniz:"
+            android:inputType="numberSigned" />
 
         <Button
             android:id="@+id/addMoneyBut"
-            android:layout_width="261dp"
-            android:layout_height="wrap_content"
+            android:layout_width="147dp"
+            android:layout_height="38dp"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:backgroundTint="@color/material_on_surface_emphasis_high_type"
             android:text="Harçlık Ekle" />
 
         <Button
-            android:id="@+id/deleteEmpBut"
-            android:layout_width="264dp"
-            android:layout_height="wrap_content"
+            android:id="@+id/cleanAllPaymentBut"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
             android:layout_gravity="center"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/material_on_surface_emphasis_high_type"
+            android:text="Harçlık Temizle" />
+
+        <Button
+            android:id="@+id/deleteEmpBut"
+            android:layout_width="147dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
             android:backgroundTint="@color/material_on_surface_emphasis_high_type"
             android:text="Çalışanı Sil" />
 
@@ -102,8 +122,8 @@
 
     <LinearLayout
         android:id="@+id/linearLayout8"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="236dp"
         android:layout_marginBottom="1dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -114,6 +134,6 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/paymentRecycler"
             android:layout_width="match_parent"
-            android:layout_height="240dp" />
+            android:layout_height="230dp" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

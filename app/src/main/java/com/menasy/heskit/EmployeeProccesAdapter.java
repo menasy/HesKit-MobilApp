@@ -32,7 +32,7 @@ public class EmployeeProccesAdapter extends RecyclerView.Adapter<EmployeeProcces
     public void onBindViewHolder(@NonNull EmplooyeProccesHolder holder, int position) {
         // Temizlik yaparak bağla
         EmployeePayment empPayment = adapterEmpPymntList.get(position);
-        holder.binding.empProcRecTxt.setText(empPayment.getPaymentAndDate());
+        holder.binding.empProcRecTxt.setText(empPayment.getPaymentInfo());
     }
 
     @Override

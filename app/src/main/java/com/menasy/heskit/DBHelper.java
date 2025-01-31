@@ -39,6 +39,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createPaymentsTable = "CREATE TABLE " + TABLE_PAYMENTS + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "amount INTEGER, " +
+                "paymentType TEXT,"+
                 "paymentDate TEXT, " +
                 "employeeId INTEGER, " +
                 "FOREIGN KEY (employeeId) REFERENCES " + TABLE_EMPLOYEES + "(id))";
@@ -73,10 +74,11 @@ public class DBHelper extends SQLiteOpenHelper {
         return employeeId; // Eklenen çalışanın ID'sini döner
     }
 
-    public long addPayment(int amount, String paymentDate, long employeeId) {
+    public long addPayment(int amount, String paymentType, String paymentDate, long employeeId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("amount", amount);
+        values.put("paymentType", paymentType);
         values.put("paymentDate", paymentDate);
         values.put("employeeId", employeeId);
 
