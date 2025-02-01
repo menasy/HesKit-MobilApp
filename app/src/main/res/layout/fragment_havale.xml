@@ -25,7 +25,8 @@
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:backgroundTint="@color/material_on_surface_emphasis_high_type"
-
+            android:textStyle="bold"
+            android:textSize="14sp"
             android:text="Havale Ekle" />
 
         <Button
@@ -35,7 +36,8 @@
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:backgroundTint="@color/material_on_surface_emphasis_high_type"
-
+            android:textStyle="bold"
+            android:textSize="14sp"
             android:text="Hepsini Temizle" />
 
     </LinearLayout>
@@ -53,9 +55,9 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/transferRecyclerView"
+            style="@style/AppRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="272dp"
-            android:layout_marginTop="24dp" />
+            android:layout_height="match_parent"/>
 
     </LinearLayout>
 
@@ -101,7 +103,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:ems="10"
-            android:hint="Gönderilecek kişi"
+            android:hint="Alıcı"
             android:inputType="text"
             android:textAlignment="center" />
 
@@ -113,6 +115,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="17dp"
         android:text="Havale Sayısı: 0"
+        android:layout_marginStart="10dp"
         android:textColor="#FFEB3B"
         android:textSize="16sp"
         android:textStyle="bold"

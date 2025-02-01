@@ -28,6 +28,7 @@ public class EmployeePayment
     public void setId(int id) { this.id = id; }
     public int getTakedMoney() { return takedMoney; }
     public int[] getDate() { return date; }
+    public String getTakedMoneyStr() { return String.format("\uD83D\uDCB0 %d₺",takedMoney); }
 
     public String getPaymentInfo() {
         try {
@@ -38,8 +39,8 @@ public class EmployeePayment
             if (paymentType.matches(""))
                 checkPaymentType = "";
             else
-                checkPaymentType = "( " + paymentType + " )";
-            return String.format("%d₺  %s -> %s", takedMoney, checkPaymentType, sdf.format(calendar.getTime()));
+                checkPaymentType = paymentType + "  →  ";
+            return String.format("%s%s", checkPaymentType, sdf.format(calendar.getTime()));
         } catch (Exception e) {
             return "Geçersiz tarih!";
         }

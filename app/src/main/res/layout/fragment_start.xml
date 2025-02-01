@@ -10,58 +10,94 @@
 
     <LinearLayout
         android:id="@+id/linearLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="184dp"
-        android:layout_marginBottom="29dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="37dp"
+        android:background="@drawable/bg_stats_card"
         android:orientation="vertical"
+        android:padding="16dp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleText">
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Toplam Havale -->
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="287dp"
+            android:layout_height="45dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="42dp"
+            android:text="HARCAMALAR"
+            android:textAlignment="center"
+            android:textColor="#FFEB3B"
+            android:textSize="28sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/totalTransferTxtView"
-            android:layout_width="343dp"
-            android:layout_height="42dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:text="Toplam Havale: 0"
-            android:textColor="@color/black"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            tools:layout_editor_absoluteX="27dp"
-            tools:layout_editor_absoluteY="169dp" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp"
+            android:background="@drawable/bg_stat_item"
+            android:drawablePadding="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center_vertical"
+            android:letterSpacing="0.02"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:text="Toplam Havale: 0₺"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
+        <!-- Toplam Harçlık -->
         <TextView
             android:id="@+id/totalPaymentTxtView"
-            android:layout_width="343dp"
-            android:layout_height="42dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:text="Toplam Harçlık: 0"
-            android:textColor="@color/black"
-            android:textSize="24sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp"
+            android:background="@drawable/bg_stat_item"
+            android:drawablePadding="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center_vertical"
+            android:letterSpacing="0.02"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:text="Toplam Harçlık: 0₺"
+            android:textColor="@color/white"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
+        <!-- Toplam Çalışan -->
         <TextView
             android:id="@+id/totalEmpStartTxt"
-            android:layout_width="343dp"
-            android:layout_height="42dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp"
+            android:background="@drawable/bg_stat_item"
+            android:drawablePadding="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center_vertical"
+            android:letterSpacing="0.02"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
             android:text="Toplam Çalışan: 0"
-            android:textColor="@color/black"
-            android:textSize="24sp"
+            android:textColor="@color/white"
+            android:textSize="20sp"
             android:textStyle="bold" />
+
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="189dp"
-        android:layout_marginStart="6dp"
-        android:layout_marginEnd="6dp"
-        android:layout_marginBottom="178dp"
+        android:layout_width="420dp"
+        android:layout_height="217dp"
+        android:layout_marginBottom="115dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -75,7 +111,9 @@
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:backgroundTint="@color/material_on_surface_emphasis_high_type"
-            android:text="Havale" />
+            android:text="Havale"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/empBut"
@@ -85,25 +123,9 @@
             android:layout_marginTop="16dp"
             android:backgroundTint="@color/material_on_surface_emphasis_high_type"
             android:text="Çalışanlar"
-
-            />
+            android:textSize="18sp"
+            android:textStyle="bold" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/titleText"
-        android:layout_width="290dp"
-        android:layout_height="59dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="64dp"
-        android:text="KKTC HARCAMALAR"
-        android:textAlignment="center"
-        android:textColor="#FFEB3B"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

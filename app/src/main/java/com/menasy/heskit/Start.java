@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 import com.menasy.heskit.databinding.FragmentStartBinding;
 
@@ -12,6 +14,7 @@ public class Start extends Fragment {
 
     private FragmentStartBinding binding;
     private static Start instance;
+    private OnBackPressedCallback backPressedCallback;
 
     // Instance alma metodu ekledik
     private static Start getInstance() {
@@ -22,6 +25,8 @@ public class Start extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentStartBinding.inflate(inflater, container, false);
         instance = this; // Instance'ı burada set ediyoruz
+
+        setupBackPressHandler();
         setupClickListeners();
         updateAllStats();
         return binding.getRoot();
@@ -112,7 +117,29 @@ public class Start extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (backPressedCallback != null) {
+            backPressedCallback.remove();
+        }
         binding = null;
         instance = null;
+    }
+
+    private void setupBackPressHandler() {
+        backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Start fragment'ındayken geri tuşunu devre dışı bırak
+                if (isVisible() && getUserVisibleHint()) {
+                    // Hiçbir şey yapma, fragment'te kalmaya devam et
+                } else {
+                    setEnabled(false);
+                    requireActivity().onBackPressed();
+                }
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(
+                getViewLifecycleOwner(), // Lifecycle owner
+                backPressedCallback
+        );
     }
 }

@@ -7,77 +7,98 @@
     android:background="#2196F3"
     tools:context=".AddEmploye">
 
-    <!-- TODO: Update blank fragment layout -->
-
-
-    <TextView
-        android:id="@+id/addEmpTitleTxt"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="38dp"
-        android:layout_marginBottom="56dp"
-        android:text="Çalışan Bilgileri"
-        android:textAlignment="center"
-        android:textColor="#FFEB3B"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout10"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/empSaveBut"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginStart="128dp"
-        android:layout_marginBottom="242dp"
-        android:backgroundTint="@color/material_on_surface_emphasis_high_type"
-        android:text="Kaydet"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/linearLayout10"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout10" />
-
     <LinearLayout
         android:id="@+id/linearLayout10"
-        android:layout_width="378dp"
-        android:layout_height="236dp"
-        android:layout_marginBottom="43dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="26dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/bg_stats_card"
         android:orientation="vertical"
+        android:padding="16dp"
         app:layout_constraintBottom_toTopOf="@+id/empSaveBut"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addEmpTitleTxt">
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/addEmpTitleTxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="36dp"
+            android:text="Çalışan Bilgileri"
+            android:textAlignment="center"
+            android:textColor="#FFEB3B"
+            android:textSize="28sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/editNameTxt"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:ems="10"
+            android:layout_marginVertical="8dp"
+            android:background="@drawable/bg_stat_item"
+            android:fontFamily="sans-serif-medium"
+            android:hint="İsim"
             android:inputType="text"
-            android:hint="İsim" />
+
+            android:padding="16dp"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/editSurnameTxt"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:ems="10"
+            android:layout_marginVertical="8dp"
+            android:background="@drawable/bg_stat_item"
+            android:fontFamily="sans-serif-medium"
+            android:hint="Soyisim"
             android:inputType="text"
-            android:hint="Soyisim" />
+            android:padding="16dp"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/editTextDate"
-            android:layout_width="215dp"
-            android:layout_height="32dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:ems="10"
-            android:hint="Işe Başlangıç Tarihi"
-            android:textSize="16sp"
-            />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp"
+            android:background="@drawable/bg_stat_item"
+            android:fontFamily="sans-serif-medium"
+            android:hint="İşe Başlangıç Tarihi"
+            android:padding="16dp"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            android:textSize="16sp" />
+
     </LinearLayout>
+
+    <Button
+        android:id="@+id/empSaveBut"
+        android:layout_width="140dp"
+        android:layout_height="50dp"
+
+        android:layout_marginBottom="311dp"
+        android:backgroundTint="@color/primary_dark"
+        android:fontFamily="sans-serif-medium"
+        android:text="Kaydet"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout10"
+        app:layout_constraintVertical_bias="0.087" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

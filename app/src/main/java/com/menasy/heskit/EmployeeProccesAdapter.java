@@ -1,8 +1,6 @@
 package com.menasy.heskit;
 
-import android.renderscript.ScriptGroup;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -39,7 +37,10 @@ public class EmployeeProccesAdapter extends RecyclerView.Adapter<EmployeeProcces
     @Override
     public void onBindViewHolder(@NonNull EmplooyeProccesHolder holder, int position) {
         EmployeePayment empPayment = adapterEmpPymntList.get(position);
-        holder.binding.empProcRecTxt.setText(empPayment.getPaymentInfo());
+        String paymentAmount = empPayment.getTakedMoneyStr();
+        String info = empPayment.getPaymentInfo();
+        holder.binding.empProcRecTxt.setText(paymentAmount);
+        holder.binding.empProcRecInfoTxt.setText(info);
 
         holder.itemView.setOnClickListener(v -> {
             if(listener != null) {
@@ -68,9 +69,5 @@ public class EmployeeProccesAdapter extends RecyclerView.Adapter<EmployeeProcces
             super(binding.getRoot());
             this.binding = binding;
         }
-    }
-    public void addPayment(EmployeePayment payment) {
-        adapterEmpPymntList.add(0, payment); // Listenin başına ekle
-        notifyItemInserted(0); // Sadece eklenen öğeyi bildir
     }
 }

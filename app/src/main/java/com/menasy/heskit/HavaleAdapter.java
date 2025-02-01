@@ -39,8 +39,10 @@ public class HavaleAdapter extends RecyclerView.Adapter<HavaleAdapter.HavaleHold
     @Override
     public void onBindViewHolder(@NonNull HavaleHolder holder, int position) {
         Transfer transfer = adapterPaymentList.get(position);
-        String info = transfer.getAmountTransfer() + "₺ (" + transfer.getSentToPerson() + ") -> " + transfer.getTransferDate();
-        holder.binding.transferRecText.setText(info);
+        String amount = "\uD83D\uDCB0 " + transfer.getAmountTransfer() + "₺";
+        String info = transfer.getSentToPerson() + "  →  " + transfer.getTransferDate();
+        holder.binding.transferRecText.setText(amount);
+        holder.binding.transferRecInfoTxt.setText(info);
 
         holder.itemView.setOnClickListener(v -> {
             if(listener != null && position != RecyclerView.NO_POSITION) {

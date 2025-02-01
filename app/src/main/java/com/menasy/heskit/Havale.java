@@ -49,8 +49,8 @@ public class Havale extends Fragment {
 
     private void showDeleteConfirmationDialog(Transfer transfer, int position) {
         new AlertDialog.Builder(requireContext())
-                .setTitle("Transfer Sil")
-                .setMessage(transfer.getAmountTransfer() + "₺ tutarındaki transferi silmek istediğinize emin misiniz?")
+                .setTitle("Havaleyi Sil")
+                .setMessage(transfer.getAmountTransfer() + "₺ tutarındaki havaleyi silmek istediğinize emin misiniz?")
                 .setPositiveButton("Evet", (dialog, which) -> deleteTransfer(transfer, position))
                 .setNegativeButton("Hayır", null)
                 .show();
@@ -64,7 +64,7 @@ public class Havale extends Fragment {
                     transferList.remove(position);
                     adapter.notifyItemRemoved(position);
                     updateUI();
-                    Toast.makeText(getContext(), "Transfer silindi", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Havale silindi", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getContext(), "Silme işlemi başarısız!", Toast.LENGTH_SHORT).show();
                 }

@@ -40,7 +40,7 @@
         private void setupUI() {
             bnd.empProcTitleTxt.setText(selectedEmployee.getNameAndSurname());
             selectedEmployee.displayDateIn(bnd.dateInTxt);
-            bnd.countDayTxt.setText("Çalışma Günü: " + selectedEmployee.getWorksDay());
+            bnd.countDayTxt.setText("Çalıştığı Gün Sayısı: " + selectedEmployee.getWorksDay());
             bnd.takedMoneyTxtView.setText("Toplam Harçlık: " + selectedEmployee.getTotalMoney() + "₺");
         }
 
@@ -69,7 +69,7 @@
         private void showDeletePaymentDialog(EmployeePayment payment, int position) {
             new AlertDialog.Builder(getContext())
                     .setTitle("Ödeme Silme")
-                    .setMessage(payment.getPaymentInfo() + "\nBu ödemeyi silmek istediğinize emin misiniz?")
+                    .setMessage(payment.getTakedMoneyStr() + "  " + payment.getPaymentInfo() + "\nBu ödemeyi silmek istediğinize emin misiniz?")
                     .setPositiveButton("Evet", (dialog, which) -> deletePayment(payment, position))
                     .setNegativeButton("Hayır", null)
                     .show();
