@@ -2,6 +2,7 @@ package com.menasy.heskit;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class DateUtils {
@@ -12,6 +13,10 @@ public class DateUtils {
         SimpleDateFormat dateFormat = new SimpleDateFormat("d.M.yyyy", new Locale("tr", "TR"));
         return dateFormat.format(calendar.getTime());
     }
+//    public static String getCurrentDate() {
+//        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+//        return sdf.format(new Date());
+//    }
     public static int[] getCurrentDateArray() {
         Calendar calendar = Calendar.getInstance();
 

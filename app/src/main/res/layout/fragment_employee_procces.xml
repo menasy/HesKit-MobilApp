@@ -89,9 +89,9 @@
             android:layout_gravity="center"
             android:layout_marginTop="8dp"
             android:ems="10"
-            android:hint="Harçlık Giriniz:"
-            android:textAlignment="center"
-            android:inputType="numberSigned" />
+            android:hint="Harçlık Giriniz"
+            android:inputType="numberSigned"
+            android:textAlignment="center" />
 
         <Button
             android:id="@+id/addMoneyBut"

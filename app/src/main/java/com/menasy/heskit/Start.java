@@ -1,6 +1,7 @@
 package com.menasy.heskit;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +40,7 @@ public class Start extends Fragment {
             }
         });
 
-        binding.havaleBut.setOnClickListener(v -> {
+        binding.transferStartBut.setOnClickListener(v -> {
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).navigateToTransfers();
             }
@@ -49,6 +50,7 @@ public class Start extends Fragment {
     private void updateAllStats() {
         updateTotalPayment();
         updateEmployeeCount();
+        updateTotalTransfer();
     }
 
     private void updateTotalPayment() {
@@ -73,6 +75,28 @@ public class Start extends Fragment {
         }).start();
     }
 
+    private void updateTotalTransfer() {
+        new Thread(() -> {
+            try {
+                int total = Singleton.getInstance().getDataBase().getTotalTransfers();
+                if (getActivity() != null && isAdded()) {
+                    getActivity().runOnUiThread(() -> {
+                        if (binding != null) {
+                            binding.totalTransferTxtView.setText("Toplam Havale: " + total + "₺");
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                Log.e("StartFragment", "Transfer güncelleme hatası", e);
+            }
+        }).start();
+    }
+
+    public static void refreshTransferTotal() {
+        if (instance != null) {
+            instance.updateTotalTransfer();
+        }
+    }
     public static void refreshPaymentTotal() {
         if (instance != null && instance.getActivity() != null) {
             instance.getActivity().runOnUiThread(instance::updateTotalPayment);

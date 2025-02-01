@@ -17,25 +17,24 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final String TABLE_EMPLOYEES = "employees";
     public static final String TABLE_PAYMENTS = "payments";
+    public static final String TABLE_TRANSFERS = "transfers";
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     public void onCreate(SQLiteDatabase db) {
-        // Yabancı anahtarları etkinleştir
         db.execSQL("PRAGMA foreign_keys = ON;");
 
-        // Çalışanlar tablosu
+        // Transfers tablosunu en sona aldık
         String createEmployeeTable = "CREATE TABLE " + TABLE_EMPLOYEES + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "name TEXT, " +
                 "surName TEXT, " +
                 "worksDay INTEGER, " +
                 "totalMoney INTEGER, " +
-                "dateIn TEXT)";  // FOREIGN KEY burada gereksiz
+                "dateIn TEXT)";
 
-        // Ödemeler tablosu
         String createPaymentsTable = "CREATE TABLE " + TABLE_PAYMENTS + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "amount INTEGER, " +
@@ -44,8 +43,15 @@ public class DBHelper extends SQLiteOpenHelper {
                 "employeeId INTEGER, " +
                 "FOREIGN KEY (employeeId) REFERENCES " + TABLE_EMPLOYEES + "(id))";
 
+        String createTransfersTable = "CREATE TABLE " + TABLE_TRANSFERS + " (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "amount INTEGER, " +
+                "transferDate TEXT, " +
+                "sentToPerson TEXT)";
+
         db.execSQL(createEmployeeTable);
         db.execSQL(createPaymentsTable);
+        db.execSQL(createTransfersTable); // Transfers en sona
     }
     public void onConfigure(SQLiteDatabase db) {
         super.onConfigure(db);
@@ -57,6 +63,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EMPLOYEES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PAYMENTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANSFERS);
         onCreate(db);
     }
 
@@ -145,5 +152,69 @@ public class DBHelper extends SQLiteOpenHelper {
         return count;
     }
 
+    public long addTransfer(int amount, String transferDate, String sentToPerson) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("amount", amount);
+        values.put("transferDate", transferDate);
+        values.put("sentToPerson", sentToPerson);
+        return db.insert(TABLE_TRANSFERS, null, values);
+    }
+
+    public ArrayList<Transfer> getAllTransfers() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<Transfer> transfers = new ArrayList<>();
+
+        // Sorgu: "id", "amount", "transferDate", "sentToPerson" sütunları çekiliyor.
+        Cursor cursor = db.query(DBHelper.TABLE_TRANSFERS,
+                new String[]{"id", "amount", "transferDate", "sentToPerson"},
+                null, null, null, null, "id DESC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                // Her bir sütun için indeks alınır.
+                int idIndex = cursor.getColumnIndex("id");
+                int amountIndex = cursor.getColumnIndex("amount");
+                int transferDateIndex = cursor.getColumnIndex("transferDate");
+                int sentToPersonIndex = cursor.getColumnIndex("sentToPerson");
+
+                // Eğer herhangi bir sütun bulunamazsa (indeks -1 ise) o satırı atla
+                if (idIndex == -1 || amountIndex == -1 || transferDateIndex == -1 || sentToPersonIndex == -1) {
+                    Log.e("DBHelper", "Eksik sütun tespit edildi. Satır atlanıyor.");
+                    continue;
+                }
+
+                // Sütunlardan veriler alınır
+                int id = cursor.getInt(idIndex);
+                int amount = cursor.getInt(amountIndex);
+                String transferDate = cursor.getString(transferDateIndex);
+                String sentToPerson = cursor.getString(sentToPersonIndex);
+
+                // Transfer nesnesi oluşturulur
+                Transfer transfer = new Transfer(amount, transferDate, sentToPerson);
+                transfer.setId(id);
+                transfers.add(transfer);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return transfers;
+    }
+
+    public int getTotalTransfers() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT SUM(amount) FROM " + TABLE_TRANSFERS, null);
+        int total = cursor.moveToFirst() ? cursor.getInt(0) : 0;
+        cursor.close();
+        return total;
+    }
+
+    public void deleteAllTransfers() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_TRANSFERS, null, null);
+    }
+    public int deleteTransfer(int transferId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete(TABLE_TRANSFERS, "id=?", new String[]{String.valueOf(transferId)});
+    }
 }
 

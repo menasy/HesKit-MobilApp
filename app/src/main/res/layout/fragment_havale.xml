@@ -9,8 +9,9 @@
 
     <LinearLayout
         android:id="@+id/linearLayout4"
-        android:layout_width="match_parent"
-        android:layout_height="136dp"
+        android:layout_width="406dp"
+        android:layout_height="139dp"
+        android:layout_marginBottom="8dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout5"
         app:layout_constraintEnd_toEndOf="parent"
@@ -19,7 +20,7 @@
 
         <Button
             android:id="@+id/addTransfer"
-            android:layout_width="189dp"
+            android:layout_width="155dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
@@ -29,7 +30,7 @@
 
         <Button
             android:id="@+id/cleanAllTransfer"
-            android:layout_width="189dp"
+            android:layout_width="155dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
@@ -43,9 +44,9 @@
         android:id="@+id/linearLayout5"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="5dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/transferCountTxt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
@@ -53,16 +54,17 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/transferRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="389dp" />
+            android:layout_height="272dp"
+            android:layout_marginTop="24dp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout11"
-        android:layout_width="match_parent"
-        android:layout_height="128dp"
+        android:layout_width="410dp"
+        android:layout_height="210dp"
         android:layout_marginTop="7dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="10dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
         app:layout_constraintEnd_toEndOf="parent"
@@ -86,21 +88,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="32dp"
             android:ems="10"
-            android:hint="Miktar giriniz"
+            android:hint="Miktar"
             android:inputType="numberSigned"
             android:textAlignment="center" />
+
+        <EditText
+            android:id="@+id/sentPersonTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:ems="10"
+            android:hint="Gönderilecek kişi"
+            android:inputType="text"
+            android:textAlignment="center" />
+
     </LinearLayout>
 
     <TextView
         android:id="@+id/transferCountTxt"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="17dp"
         android:text="Havale Sayısı: 0"
         android:textColor="#FFEB3B"
         android:textSize="16sp"

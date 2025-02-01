@@ -69,13 +69,12 @@
         app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
         <Button
-            android:id="@+id/havaleBut"
+            android:id="@+id/transferStartBut"
             android:layout_width="281dp"
             android:layout_height="61dp"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:backgroundTint="@color/material_on_surface_emphasis_high_type"
-            android:onClick="handleHavale"
             android:text="Havale" />
 
         <Button
@@ -85,7 +84,6 @@
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:backgroundTint="@color/material_on_surface_emphasis_high_type"
-            android:onClick="handleEmp"
             android:text="Çalışanlar"
 
             />
