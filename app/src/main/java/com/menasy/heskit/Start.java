@@ -44,12 +44,6 @@ public class Start extends Fragment {
                 ((MainActivity) getActivity()).navigateToEmployees();
             }
         });
-
-        binding.transferStartBut.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToTransfers();
-            }
-        });
     }
 
     private void updateAllStats() {

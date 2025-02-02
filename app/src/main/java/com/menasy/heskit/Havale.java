@@ -1,193 +1,167 @@
 package com.menasy.heskit;
 
 import android.app.AlertDialog;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
 import com.menasy.heskit.databinding.FragmentHavaleBinding;
-
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
 
 public class Havale extends Fragment {
 
-    private FragmentHavaleBinding binding;
-    private HavaleAdapter adapter;
-    private ArrayList<Transfer> transferList = new ArrayList<>();
-    private DBHelper dbHelper;
+    private FragmentHavaleBinding bnd;
+    private static Employee selectedEmployee;
+    private HavaleAdapter havaleAdapter;
 
-    public Havale() {
-        // Required empty public constructor
+    public static void setSelectedEmployee(Employee employee) {
+        selectedEmployee = employee;
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentHavaleBinding.inflate(inflater, container, false);
-        dbHelper = Singleton.getInstance().getDataBase();
+        bnd = FragmentHavaleBinding.inflate(inflater, container, false);
+        return bnd.getRoot();
+    }
 
-        setupRecyclerView();
-        setupClickListeners();
-        loadTransfers();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (selectedEmployee != null) {
+            loadTransfersFromDB();
+            setupUI();
+            setupRecyclerView();
+            setupButtons();
+        }
+    }
 
-        return binding.getRoot();
+    private void loadTransfersFromDB() {
+        DBHelper dbHelper = Singleton.getInstance().getDataBase();
+        ArrayList<Transfer> transfers = dbHelper.getTransfersForEmployee(selectedEmployee.getDbId());
+        selectedEmployee.getEmpTransferLst().clear();
+        selectedEmployee.getEmpTransferLst().addAll(transfers);
+    }
+
+    private void setupUI() {
+        bnd.transferTitleTextView.setText(selectedEmployee.getNameAndSurname());
     }
 
     private void setupRecyclerView() {
-        binding.transferRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new HavaleAdapter(transferList, (transfer, position) ->
-                showDeleteConfirmationDialog(transfer, position)
-        );
-        binding.transferRecyclerView.setAdapter(adapter);
+        havaleAdapter = new HavaleAdapter(selectedEmployee.getEmpTransferLst(), (payment, position) ->
+                showDeleteTransferDialog(payment, position));
+        bnd.transferRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        bnd.transferRecyclerView.setAdapter(havaleAdapter);
     }
 
-    private void showDeleteConfirmationDialog(Transfer transfer, int position) {
+    private void setupButtons() {
+        bnd.addTransfer.setOnClickListener(v -> addTransfer());
+        bnd.cleanAllTransfer.setOnClickListener(v -> showCleanAllConfirmation());
+    }
+
+    private void addTransfer() {
+        String amountStr = bnd.transferAmountTxt.getText().toString().trim();
+        String recipient = bnd.sentPersonTxt.getText().toString().trim();
+
+        if(amountStr.isEmpty() || recipient.isEmpty()) {
+            Toast.makeText(requireContext(), "Lütfen tüm alanları doldurun!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        DBHelper dbHelper = Singleton.getInstance().getDataBase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+
+        try {
+            int amount = Integer.parseInt(amountStr);
+            if(amount <= 0) throw new NumberFormatException();
+
+            long transferId = dbHelper.addTransfer(
+                    amount,
+                    DateUtils.getCurrentDate(),
+                    recipient,
+                    selectedEmployee.getDbId()
+            );
+
+            if(transferId == -1) throw new Exception("Havale eklenemedi");
+
+            Transfer newTransfer = new Transfer(amount, DateUtils.getCurrentDate(), recipient);
+            newTransfer.setId((int) transferId);
+            selectedEmployee.getEmpTransferLst().add(0, newTransfer);
+            havaleAdapter.notifyItemInserted(0);
+            bnd.transferRecyclerView.smoothScrollToPosition(0);
+
+            db.setTransactionSuccessful();
+            Start.refreshPaymentTotal();
+            Toast.makeText(requireContext(), "Havale başarıyla eklendi", Toast.LENGTH_SHORT).show();
+            bnd.transferAmountTxt.setText("");
+            bnd.sentPersonTxt.setText("");
+        } catch(Exception e) {
+            Log.e("ADD_TRANSFER", "Hata: ", e);
+            Toast.makeText(requireContext(), "Hata: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void showDeleteTransferDialog(Transfer transfer, int position) {
         new AlertDialog.Builder(requireContext())
-                .setTitle("Havaleyi Sil")
-                .setMessage(transfer.getAmountTransfer() + "₺ tutarındaki havaleyi silmek istediğinize emin misiniz?")
+                .setTitle("Havale Silme")
+                .setMessage(transfer.getAmountTransfer() + "₺ silinsin mi?")
                 .setPositiveButton("Evet", (dialog, which) -> deleteTransfer(transfer, position))
                 .setNegativeButton("Hayır", null)
                 .show();
     }
+
     private void deleteTransfer(Transfer transfer, int position) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            int deletedRows = dbHelper.deleteTransfer(transfer.getId());
+        DBHelper dbHelper = Singleton.getInstance().getDataBase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
 
-            requireActivity().runOnUiThread(() -> {
-                if(deletedRows > 0) {
-                    transferList.remove(position);
-                    adapter.notifyItemRemoved(position);
-                    updateUI();
-                    Toast.makeText(getContext(), "Havale silindi", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getContext(), "Silme işlemi başarısız!", Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
-    }
-    private void setupClickListeners() {
-        binding.addTransfer.setOnClickListener(v -> addTransfer());
-        binding.cleanAllTransfer.setOnClickListener(v -> showCleanAllDialog());
-    }
-
-    private void addTransfer() {
-        String amountStr = binding.TransferAmountTxt.getText().toString().trim();
-        String recipient = binding.sentPersonTxt.getText().toString().trim();
-
-        if (!isValidInput(amountStr, recipient)) return;
-
-        int amount = Integer.parseInt(amountStr);
-        String currentDate = DateUtils.getCurrentDate();
-
-        Executors.newSingleThreadExecutor().execute(() -> {
-            long id = dbHelper.addTransfer(amount, currentDate, recipient);
-
-            requireActivity().runOnUiThread(() -> {
-                if (id != -1) {
-                    Transfer newTransfer = new Transfer(amount, currentDate, recipient);
-                    newTransfer.setId((int) id);
-                    transferList.add(0, newTransfer);
-                    adapter.notifyItemInserted(0);
-                    clearInputFields();
-                    updateUI();
-                } else {
-                    Toast.makeText(getContext(), "Havale eklenemedi!", Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
-    }
-
-    private boolean isValidInput(String amountStr, String recipient) {
-        if (amountStr.isEmpty() || !amountStr.matches("\\d+")) {
-            showError("Geçersiz miktar!");
-            return false;
+        try {
+            int deletedRows = db.delete(DBHelper.TABLE_TRANSFERS, "id=?", new String[]{String.valueOf(transfer.getId())});
+            if(deletedRows > 0) {
+                selectedEmployee.getEmpTransferLst().remove(position);
+                havaleAdapter.notifyItemRemoved(position);
+                db.setTransactionSuccessful();
+            }
+        } catch(Exception e) {
+            Log.e("DELETE_TRANSFER", "Hata: ", e);
+        } finally {
+            db.endTransaction();
         }
-
-        int amount = Integer.parseInt(amountStr);
-        if (amount <= 0) {
-            showError("Miktar 0'dan büyük olmalı!");
-            return false;
-        }
-
-        if (recipient.isEmpty()) {
-            showError("Alıcı adı giriniz!");
-            return false;
-        }
-        return true;
     }
 
-    private void showError(String message) {
-        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    private void clearInputFields() {
-        binding.TransferAmountTxt.setText("");
-        binding.sentPersonTxt.setText("");
-    }
-
-    private void updateUI() {
-        binding.transferCountTxt.setText("Havale Sayısı: " + transferList.size());
-        Start.refreshTransferTotal();
-    }
-
-    private void showTransferDetails(Transfer transfer) {
+    private void showCleanAllConfirmation() {
         new AlertDialog.Builder(requireContext())
-                .setTitle("Havale Detayı")
-                .setMessage(
-                        "Alıcı: " + transfer.getSentToPerson() + "\n" +
-                                "Miktar: " + transfer.getAmountTransfer() + "₺\n" +
-                                "Tarih: " + transfer.getTransferDate()
-                )
-                .setPositiveButton("Tamam", null)
-                .show();
-    }
-
-    private void showCleanAllDialog() {
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Tümünü Sil")
-                .setMessage("Tüm havale geçmişini silmek istediğinize emin misiniz?")
+                .setTitle("Tüm Havaleleri Sil")
+                .setMessage("Tüm havale geçmişi kalıcı olarak silinsin mi?")
                 .setPositiveButton("Evet", (dialog, which) -> cleanAllTransfers())
-                .setNegativeButton("İptal", null)
+                .setNegativeButton("Hayır", null)
                 .show();
     }
 
     private void cleanAllTransfers() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            dbHelper.deleteAllTransfers();
+        DBHelper dbHelper = Singleton.getInstance().getDataBase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
 
-            requireActivity().runOnUiThread(() -> {
-                transferList.clear();
-                adapter.notifyDataSetChanged();
-                updateUI();
-                Toast.makeText(getContext(), "Tüm havaleler silindi", Toast.LENGTH_SHORT).show();
-            });
-        });
-    }
-
-    private void loadTransfers() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            ArrayList<Transfer> transfers = dbHelper.getAllTransfers();
-
-            requireActivity().runOnUiThread(() -> {
-                if (transfers != null) {
-                    transferList.clear();
-                    transferList.addAll(transfers);
-                    adapter.notifyDataSetChanged();
-                    binding.transferCountTxt.setText("Havale Sayısı: " + transferList.size());
-                }
-            });
-        });
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+        try {
+            db.delete(DBHelper.TABLE_TRANSFERS, "employeeId=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
+            selectedEmployee.getEmpTransferLst().clear();
+            havaleAdapter.updateList(new ArrayList<>());
+            db.setTransactionSuccessful();
+            Toast.makeText(requireContext(), "Tüm havaleler silindi", Toast.LENGTH_SHORT).show();
+        } catch(Exception e) {
+            Log.e("CLEAN_TRANSFERS", "Hata: ", e);
+        } finally {
+            db.endTransaction();
+        }
     }
 }

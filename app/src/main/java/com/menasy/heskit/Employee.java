@@ -23,7 +23,9 @@ public class Employee implements Serializable
     private String surName;
     private int worksDay;
     private int totalMoney;
+    private int totalTransfer;
     private ArrayList <EmployeePayment> empPaymentLst;
+    private ArrayList <Transfer>    empTransferLst;
 
 
 
@@ -34,6 +36,7 @@ public class Employee implements Serializable
         this.name = name;
         this.surName = surName;
         this.empPaymentLst = new ArrayList<>();
+        this.empTransferLst = new ArrayList<>();
         for(int i = 0; i < 3; i++)
             this.dateIn[i] = dateIn[i];
         this.worksDay = calcWorksDay(dateIn);
@@ -147,7 +150,6 @@ public class Employee implements Serializable
         return this.totalMoney;
     }
 
-
     public void setDateIn(int day, int month, int year)
     {
         dateIn[0] = day;
@@ -179,6 +181,38 @@ public class Employee implements Serializable
         } catch (SQLiteException e) {
             Log.e("DB", "Veritabanı hatası: " + e.getMessage());
             return -1L;
+        }
+    }
+
+    public ArrayList<Transfer> getEmpTransferLst() {
+        return empTransferLst;
+    }
+
+    public void setEmpTransferLst(ArrayList<Transfer> empTransferLst) {
+        this.empTransferLst = empTransferLst;
+    }
+
+    public int getTotalTransfer() {
+        return totalTransfer;
+    }
+
+    public void setTotalTransfer(int totalTransfer) {
+        this.totalTransfer = totalTransfer;
+    }
+
+    public void addTransfer(Transfer transfer) {
+        if(transfer != null) {
+            if(empTransferLst == null) empTransferLst = new ArrayList<>();
+            empTransferLst.add(transfer);
+            totalTransfer += transfer.getAmountTransfer();
+        }
+    }
+
+    public void removeTransfer(int position) {
+        if(position >= 0 && position < empTransferLst.size()) {
+            Transfer t = empTransferLst.get(position);
+            totalTransfer -= t.getAmountTransfer();
+            empTransferLst.remove(position);
         }
     }
 }

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#2196F3"
+    tools:context=".AddPayment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <LinearLayout
+        android:id="@+id/linearLayoutPayment2"
+        android:layout_width="401dp"
+        android:layout_height="310dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="13dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutPayment3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/addPaymentTitleTxtView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:text="Çalışan İsmi"
+            android:textAlignment="center"
+            android:textColor="#FFEE58"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/paymentTypeEditTxt"
+            android:layout_width="337dp"
+            android:layout_height="42dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:ems="10"
+            android:hint="Harçlık Tipi Giriniz (Berber, Çarşı)"
+            android:textAlignment="center" />
+
+        <EditText
+            android:id="@+id/moneyEditTxt"
+            android:layout_width="337dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:ems="10"
+            android:hint="Harçlık Giriniz"
+            android:inputType="numberSigned"
+            android:textAlignment="center" />
+
+        <Button
+            android:id="@+id/addMoneyBut"
+            android:layout_width="164dp"
+            android:layout_height="45dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/material_on_surface_emphasis_high_type"
+            android:text="Harçlık Ekle"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/cleanAllPaymentBut"
+            android:layout_width="164dp"
+            android:layout_height="45dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/material_on_surface_emphasis_high_type"
+            android:text="Hepsini Temizle"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutPayment3"
+        android:layout_width="match_parent"
+        android:layout_height="395dp"
+        android:layout_marginBottom="1dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutPayment2">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/paymentRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="385dp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

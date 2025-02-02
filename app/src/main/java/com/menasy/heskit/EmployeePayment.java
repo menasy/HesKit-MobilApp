@@ -50,10 +50,6 @@ public class EmployeePayment
         return String.format("%d/%d/%d", date[0], date[1], date[2]);
     }
 
-    public Long paymentPutDataBase(Long employeeId) {
-        DBHelper dbHelper = Singleton.getInstance().getDataBase();
-        return dbHelper.addPayment(this.takedMoney, this.getPaymentType(), this.getDateInStr(), employeeId);
-    }
 
     public long getDbId() {
         return dbId;

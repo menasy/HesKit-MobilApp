@@ -42,14 +42,13 @@ public class Calisanlar extends Fragment {
         bnd.fragmentCalisanRecView.setAdapter(adapter);
 
         adapter.setOnEmployeeClickListener(employee -> {
-            EmployeeProcces.setSelectedEmployee(employee);
             if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToEmpProcces();
+                ((MainActivity) getActivity()).navigateToEmpProcces(employee);
             }
         });
 
-        loadEmployeeDataFromDB();
         setupClickListeners();
+        loadEmployeeDataFromDB();
         updateSummaryViews();
         setupSearchView();
         return view;

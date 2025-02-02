@@ -47,7 +47,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "amount INTEGER, " +
                 "transferDate TEXT, " +
-                "sentToPerson TEXT)";
+                "sentToPerson TEXT, " +
+                "employeeId INTEGER, " +  // Yeni eklenen sütun
+                "FOREIGN KEY (employeeId) REFERENCES " + TABLE_EMPLOYEES + "(id))";
 
         db.execSQL(createEmployeeTable);
         db.execSQL(createPaymentsTable);
@@ -215,6 +217,60 @@ public class DBHelper extends SQLiteOpenHelper {
     public int deleteTransfer(int transferId) {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(TABLE_TRANSFERS, "id=?", new String[]{String.valueOf(transferId)});
+    }
+    public ArrayList<Transfer> getTransfersForEmployee(long employeeId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<Transfer> transfers = new ArrayList<>();
+
+        Cursor cursor = db.query(
+                TABLE_TRANSFERS,
+                new String[]{"id", "amount", "transferDate", "sentToPerson"},
+                "employeeId=?",
+                new String[]{String.valueOf(employeeId)},
+                null,
+                null,
+                "id DESC"
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int idIndex = cursor.getColumnIndex("id");
+                int amountIndex = cursor.getColumnIndex("amount");
+                int transferDateIndex = cursor.getColumnIndex("transferDate");
+                int sentToPersonIndex = cursor.getColumnIndex("sentToPerson");
+
+                if (idIndex == -1 || amountIndex == -1 ||
+                        transferDateIndex == -1 || sentToPersonIndex == -1) {
+                    Log.e("DBHelper", "Eksik sütun tespit edildi. Satır atlanıyor.");
+                    continue;
+                }
+
+                int id = cursor.getInt(idIndex);
+                int amount = cursor.getInt(amountIndex);
+                String transferDate = cursor.getString(transferDateIndex);
+                String sentToPerson = cursor.getString(sentToPersonIndex);
+
+                Transfer transfer = new Transfer(amount, transferDate, sentToPerson);
+                transfer.setId(id);
+                transfers.add(transfer);
+
+            } while (cursor.moveToNext());
+
+            cursor.close();
+        }
+
+        return transfers;
+    }
+
+    public long addTransfer(int amount, String transferDate, String sentToPerson, long employeeId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("amount", amount);
+        values.put("transferDate", transferDate);
+        values.put("sentToPerson", sentToPerson);
+        values.put("employeeId", employeeId); // Yeni eklenen sütun
+
+        return db.insert(TABLE_TRANSFERS, null, values);
     }
 }
 

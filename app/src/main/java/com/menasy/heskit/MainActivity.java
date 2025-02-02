@@ -43,7 +43,8 @@ public class MainActivity extends AppCompatActivity {
         showFragment(new Calisanlar());
     }
 
-    public void navigateToTransfers() {
+    public void navigateToTransfers(Employee employee) {
+        Havale.setSelectedEmployee(employee);
         showFragment(new Havale());
     }
 
@@ -51,7 +52,13 @@ public class MainActivity extends AppCompatActivity {
         showFragment(new AddEmploye());
     }
 
-    public void navigateToEmpProcces() {
+    public void navigateToEmpProcces(Employee employee) {
+        EmployeeProcces.setSelectedEmp(employee);
         showFragment(new EmployeeProcces());
+    }
+
+    public void navigateToAddPayment(Employee employee) {
+        AddPayment.setSelectedEmployee(employee);
+        showFragment(new AddPayment());
     }
 }

@@ -77,4 +77,11 @@ public class HavaleAdapter extends RecyclerView.Adapter<HavaleAdapter.HavaleHold
             this.binding = binding;
         }
     }
+    public void removeItem(int position) {
+        if(position >= 0 && position < adapterPaymentList.size()) {
+            adapterPaymentList.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, getItemCount());
+        }
+    }
 }
