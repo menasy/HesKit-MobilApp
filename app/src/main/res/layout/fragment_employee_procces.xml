@@ -118,8 +118,8 @@
 
     <LinearLayout
         android:id="@+id/linearLayout9"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="407dp"
+        android:layout_height="207dp"
         android:layout_marginBottom="172dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"

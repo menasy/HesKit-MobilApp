@@ -28,7 +28,7 @@
         <!-- Toplam Havale -->
         <TextView
             android:id="@+id/titleText"
-            android:layout_width="287dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="42dp"
@@ -118,7 +118,7 @@
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="151dp"
         android:orientation="vertical"
@@ -129,13 +129,14 @@
 
         <Button
             android:id="@+id/empBut"
-            android:layout_width="189dp"
-            android:layout_height="61dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:backgroundTint="@color/material_on_surface_emphasis_high_type"
             android:text="Çalışanlar"
-            android:textSize="18sp"
+            android:layout_marginBottom="8dp"
+            android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
 

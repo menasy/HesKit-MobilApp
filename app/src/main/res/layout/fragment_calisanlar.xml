@@ -9,19 +9,20 @@
 
     <LinearLayout
         android:id="@+id/linearLayout3"
-        android:layout_width="411dp"
+        android:layout_width="match_parent"
         android:layout_height="585dp"
         android:layout_marginBottom="9dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout6"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/searchView">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/fragmentCalisanRecView"
             android:layout_width="match_parent"
-            android:layout_height="544dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:clipToPadding="false"
             android:padding="0dp" />
@@ -29,8 +30,8 @@
 
     <LinearLayout
         android:id="@+id/linearLayout6"
-        android:layout_width="411dp"
-        android:layout_height="69dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -40,8 +41,8 @@
 
         <Button
             android:id="@+id/addEmployee"
-            android:layout_width="170dp"
-            android:layout_height="55dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
@@ -53,8 +54,8 @@
 
     <SearchView
         android:id="@+id/searchView"
-        android:layout_width="401dp"
-        android:layout_height="36dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginStart="3dp"
         android:layout_marginTop="12dp"
         android:layout_marginEnd="3dp"

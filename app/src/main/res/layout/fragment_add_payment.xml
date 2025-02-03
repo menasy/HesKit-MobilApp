@@ -91,13 +91,13 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/paymentRecycler"
             android:layout_width="match_parent"
-            android:layout_height="295dp" />
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout8"
-        android:layout_width="392dp"
-        android:layout_height="119dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/linearLayoutPayment3"
