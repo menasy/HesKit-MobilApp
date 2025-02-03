@@ -127,7 +127,6 @@ public class Havale extends Fragment {
                 bnd.transferAmountTxt.setText("");
                 bnd.sentPersonTxt.setText("");
 
-                Toast.makeText(requireContext(), "Havale başarıyla eklendi", Toast.LENGTH_SHORT).show();
             });
 
         } catch(Exception e) {

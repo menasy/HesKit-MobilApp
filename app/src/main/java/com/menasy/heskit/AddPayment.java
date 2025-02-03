@@ -149,7 +149,6 @@ public class AddPayment extends Fragment {
                 }
                 Calisanlar.loadEmployeeDataFromDB();
                 Start.refreshPaymentTotal();
-                Toast.makeText(requireContext(), "Harçlık başarıyla eklendi", Toast.LENGTH_SHORT).show();
                 bnd.moneyEditTxt.setText("");
                 bnd.paymentTypeEditTxt.setText("");
             });
