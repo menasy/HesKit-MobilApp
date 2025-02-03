@@ -1,5 +1,7 @@
 package com.menasy.heskit;
 
+import android.util.Log;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,6 +25,20 @@ public class DateUtils {
 
         // Güncel tarihi array olarak döndür
         return new int[]{day, month, year};
+    }
+
+    public static int[] parseDateArray(String dateStr) {
+        try {
+            String[] parts = dateStr.split("/");
+            return new int[]{
+                    Integer.parseInt(parts[0].trim()),
+                    Integer.parseInt(parts[1].trim()),
+                    Integer.parseInt(parts[2].trim())
+            };
+        } catch (Exception e) {
+            Log.e("DateUtils", "Geçersiz tarih formatı: " + dateStr);
+            return new int[]{1, 1, 2023}; // Varsayılan değer
+        }
     }
 
 }

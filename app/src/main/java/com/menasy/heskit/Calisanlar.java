@@ -3,13 +3,10 @@ package com.menasy.heskit;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -49,7 +46,6 @@ public class Calisanlar extends Fragment {
 
         setupClickListeners();
         loadEmployeeDataFromDB();
-        updateSummaryViews();
         setupSearchView();
         return view;
     }
@@ -99,20 +95,23 @@ public class Calisanlar extends Fragment {
                 int surNameColumnIndex = cursor.getColumnIndex("surName");
                 int totalMoneyColumnIndex = cursor.getColumnIndex("totalMoney");
                 int dateInColumnIndex = cursor.getColumnIndex("dateIn");
+                int totalTransferIndex = cursor.getColumnIndex("totalTransfer");
 
                 if (idColumnIndex != -1 && nameColumnIndex != -1 && surNameColumnIndex != -1
-                        && totalMoneyColumnIndex != -1 && dateInColumnIndex != -1) {
+                        && totalMoneyColumnIndex != -1 && dateInColumnIndex != -1 && totalTransferIndex != -1) {
 
                     long dbId = cursor.getLong(idColumnIndex);
                     String name = cursor.getString(nameColumnIndex);
                     String surName = cursor.getString(surNameColumnIndex);
                     int totalMoney = cursor.getInt(totalMoneyColumnIndex);
                     String dateInStr = cursor.getString(dateInColumnIndex);
+                    int totalTransfer = cursor.getInt(totalTransferIndex);
 
                     int[] dateIn = processDateIn(dateInStr);
                     Employee emp = new Employee(name, surName, dateIn);
                     emp.setDbId(dbId); // ID'yi set et
                     emp.setTotalMoney(totalMoney);
+                    emp.setTotalTransfer(totalTransfer);
                     ArrayList<EmployeePayment> payments = dbHelper.getPaymentsForEmployee(dbId);
                     emp.setEmpPaymentLst(payments);
                     empList.add(emp);
@@ -121,15 +120,8 @@ public class Calisanlar extends Fragment {
             } while (cursor.moveToNext());
             cursor.close();
         }
-        if(getInstance() != null) {
-            getInstance().updateSummaryViews();
-        }
         originalEmpList.clear();
         originalEmpList.addAll(empList);
-    }
-
-    private static Calisanlar getInstance() {
-        return instance;
     }
 
     private static int[] processDateIn(String dateInStr) {
@@ -139,22 +131,6 @@ public class Calisanlar extends Fragment {
             dateIn[i] = Integer.parseInt(dateParts[i]);
         }
         return dateIn;
-    }
-
-    private void updateSummaryViews() {
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(() -> {
-                int employeeCount = empList.size();
-                bnd.empCountTxtView.setText("Çalışan Sayısı: " + employeeCount);
-
-                int totalPayment = calculateTotalPayment();
-                bnd.calisanTotalPaymentTxt.setText("Toplam Harçlık: " + totalPayment + "₺");
-            });
-        }
-    }
-
-    private int calculateTotalPayment() {
-        return Singleton.getInstance().getDataBase().getTotalPayments();
     }
 
 }

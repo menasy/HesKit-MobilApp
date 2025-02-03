@@ -1,6 +1,7 @@
 package com.menasy.heskit;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -47,11 +48,24 @@ public class Havale extends Fragment {
         ArrayList<Transfer> transfers = dbHelper.getTransfersForEmployee(selectedEmployee.getDbId());
         selectedEmployee.getEmpTransferLst().clear();
         selectedEmployee.getEmpTransferLst().addAll(transfers);
+
+        // Toplam transfer miktarını güncelle
+        selectedEmployee.setTotalTransfer(calculateTotalTransfer(transfers));
+    }
+
+    private int calculateTotalTransfer(ArrayList<Transfer> transfers) {
+        int total = 0;
+        for (Transfer t : transfers) {
+            total += t.getAmountTransfer();
+        }
+        return total;
     }
 
     private void setupUI() {
         bnd.transferTitleTextView.setText(selectedEmployee.getNameAndSurname());
     }
+
+
 
     private void setupRecyclerView() {
         havaleAdapter = new HavaleAdapter(selectedEmployee.getEmpTransferLst(), (payment, position) ->
@@ -91,6 +105,12 @@ public class Havale extends Fragment {
 
             if(transferId == -1) throw new Exception("Havale eklenemedi");
 
+            // Veritabanında totalTransfer'i güncelle
+            selectedEmployee.setTotalTransfer(selectedEmployee.getTotalTransfer() + amount);
+            ContentValues values = new ContentValues();
+            values.put("totalTransfer", selectedEmployee.getTotalTransfer());
+            db.update(DBHelper.TABLE_EMPLOYEES, values, "id=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
+
             Transfer newTransfer = new Transfer(amount, DateUtils.getCurrentDate(), recipient);
             newTransfer.setId((int) transferId);
             selectedEmployee.getEmpTransferLst().add(0, newTransfer);
@@ -98,7 +118,11 @@ public class Havale extends Fragment {
             bnd.transferRecyclerView.smoothScrollToPosition(0);
 
             db.setTransactionSuccessful();
-            Start.refreshPaymentTotal();
+
+            // Verileri yenile
+            Calisanlar.loadEmployeeDataFromDB();
+            Start.refreshTransferTotal();
+
             Toast.makeText(requireContext(), "Havale başarıyla eklendi", Toast.LENGTH_SHORT).show();
             bnd.transferAmountTxt.setText("");
             bnd.sentPersonTxt.setText("");
@@ -127,9 +151,20 @@ public class Havale extends Fragment {
         try {
             int deletedRows = db.delete(DBHelper.TABLE_TRANSFERS, "id=?", new String[]{String.valueOf(transfer.getId())});
             if(deletedRows > 0) {
+                // Veritabanında totalTransfer'i güncelle
+                selectedEmployee.setTotalTransfer(selectedEmployee.getTotalTransfer() - transfer.getAmountTransfer());
+                ContentValues values = new ContentValues();
+                values.put("totalTransfer", selectedEmployee.getTotalTransfer());
+                db.update(DBHelper.TABLE_EMPLOYEES, values, "id=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
+
                 selectedEmployee.getEmpTransferLst().remove(position);
                 havaleAdapter.notifyItemRemoved(position);
+
                 db.setTransactionSuccessful();
+
+                // Verileri yenile
+                Calisanlar.loadEmployeeDataFromDB();
+                Start.refreshTransferTotal();
             }
         } catch(Exception e) {
             Log.e("DELETE_TRANSFER", "Hata: ", e);
@@ -154,9 +189,22 @@ public class Havale extends Fragment {
 
         try {
             db.delete(DBHelper.TABLE_TRANSFERS, "employeeId=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
+
+            // Veritabanında totalTransfer'i sıfırla
+            selectedEmployee.setTotalTransfer(0);
+            ContentValues values = new ContentValues();
+            values.put("totalTransfer", 0);
+            db.update(DBHelper.TABLE_EMPLOYEES, values, "id=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
+
             selectedEmployee.getEmpTransferLst().clear();
             havaleAdapter.updateList(new ArrayList<>());
+
             db.setTransactionSuccessful();
+
+            // Verileri yenile
+            Calisanlar.loadEmployeeDataFromDB();
+            Start.refreshTransferTotal();
+
             Toast.makeText(requireContext(), "Tüm havaleler silindi", Toast.LENGTH_SHORT).show();
         } catch(Exception e) {
             Log.e("CLEAN_TRANSFERS", "Hata: ", e);

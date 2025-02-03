@@ -9,9 +9,9 @@
 
     <LinearLayout
         android:id="@+id/linearLayout4"
-        android:layout_width="match_parent"
-        android:layout_height="137dp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="418dp"
+        android:layout_height="138dp"
+        android:layout_marginBottom="18dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout5"
         app:layout_constraintEnd_toEndOf="parent"
@@ -46,7 +46,6 @@
         android:id="@+id/linearLayout5"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="2dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,18 +56,18 @@
             android:id="@+id/transferRecyclerView"
             style="@style/AppRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="285dp" />
+            android:layout_height="260dp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout11"
-        android:layout_width="396dp"
-        android:layout_height="251dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="7dp"
         android:layout_marginEnd="12dp"
-        android:layout_marginBottom="13dp"
+        android:layout_marginBottom="9dp"
         android:background="@drawable/bg_stats_card"
         android:orientation="vertical"
         android:padding="16dp"
@@ -83,15 +82,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
+            android:padding="12dp"
             android:text="Havale İşlemleri"
             android:textAlignment="center"
             android:textColor="#FFEB3B"
             android:textSize="28sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            android:background="#AA000000"
+            android:shadowColor="#80000000"
+            android:shadowDx="2"
+            android:shadowDy="2" />
 
-        <!-- Miktar Input -->
 
-        <!-- Alıcı Input -->
         <EditText
             android:id="@+id/transferAmountTxt"
             android:layout_width="match_parent"
@@ -104,7 +107,7 @@
             android:padding="16dp"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:textColorHint="@color/white"
+            android:textColorHint="@color/dark_stroke"
             android:textSize="16sp" />
 
         <EditText
@@ -119,7 +122,7 @@
             android:padding="16dp"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:textColorHint="@color/white"
+            android:textColorHint="@color/dark_stroke"
             android:textSize="16sp" />
     </LinearLayout>
 

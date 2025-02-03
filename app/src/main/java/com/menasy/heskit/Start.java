@@ -55,9 +55,12 @@ public class Start extends Fragment {
     private void updateTotalPayment() {
         new Thread(() -> {
             int total = Singleton.getInstance().getDataBase().getTotalPayments();
+            int totalAll = Singleton.getInstance().getDataBase().getTotalTransfers()
+                    + Singleton.getInstance().getDataBase().getTotalPayments();
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     binding.totalPaymentTxtView.setText("Toplam Harçlık: " + total + "₺");
+                    binding.totalAllMoney.setText("Toplam Para: " + totalAll + "₺");
                 });
             }
         }).start();
@@ -78,10 +81,13 @@ public class Start extends Fragment {
         new Thread(() -> {
             try {
                 int total = Singleton.getInstance().getDataBase().getTotalTransfers();
+                int totalAll = Singleton.getInstance().getDataBase().getTotalTransfers()
+                        + Singleton.getInstance().getDataBase().getTotalPayments();
                 if (getActivity() != null && isAdded()) {
                     getActivity().runOnUiThread(() -> {
                         if (binding != null) {
                             binding.totalTransferTxtView.setText("Toplam Havale: " + total + "₺");
+                            binding.totalAllMoney.setText("Toplam Para: " + totalAll + "₺");
                         }
                     });
                 }

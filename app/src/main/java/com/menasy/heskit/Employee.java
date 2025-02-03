@@ -41,6 +41,12 @@ public class Employee implements Serializable
             this.dateIn[i] = dateIn[i];
         this.worksDay = calcWorksDay(dateIn);
     }
+
+    public Employee() {
+        this.empPaymentLst = new ArrayList<>();
+        this.empTransferLst = new ArrayList<>();
+        this.dateIn = new int[3];
+    }
     public ArrayList<EmployeePayment> getEmpPaymentLst() {
         return empPaymentLst;
     }
@@ -119,9 +125,7 @@ public class Employee implements Serializable
     public int getWorksDay() {
         return worksDay;
     }
-    public void setDateIn(int[] dateIn) {
-        this.dateIn = dateIn;
-    }
+
 
     public void setName(String name) {
         this.name = name;
@@ -157,6 +161,10 @@ public class Employee implements Serializable
         dateIn[2] = year;
     }
 
+    public int getTotalTransferAndPayment()
+    {
+        return (this.totalMoney + this.totalTransfer);
+    }
     public void deleteEmpPayment(int payment, int[] date)
     {
         if (empPaymentLst != null)
@@ -213,6 +221,17 @@ public class Employee implements Serializable
             Transfer t = empTransferLst.get(position);
             totalTransfer -= t.getAmountTransfer();
             empTransferLst.remove(position);
+        }
+    }
+    public void setDateInFromString(String dateStr) {
+        this.dateIn = DateUtils.parseDateArray(dateStr);
+    }
+
+    public void setDateIn(int[] dateArray) {
+        if(dateArray != null && dateArray.length == 3) {
+            this.dateIn[0] = dateArray[0];
+            this.dateIn[1] = dateArray[1];
+            this.dateIn[2] = dateArray[2];
         }
     }
 }

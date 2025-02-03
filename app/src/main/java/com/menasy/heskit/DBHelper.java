@@ -9,11 +9,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "employee.db";
-    private static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
 
     public static final String TABLE_EMPLOYEES = "employees";
     public static final String TABLE_PAYMENTS = "payments";
@@ -33,6 +34,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "surName TEXT, " +
                 "worksDay INTEGER, " +
                 "totalMoney INTEGER, " +
+                "totalTransfer INTEGER DEFAULT 0, " +
                 "dateIn TEXT)";
 
         String createPaymentsTable = "CREATE TABLE " + TABLE_PAYMENTS + " (" +
@@ -48,12 +50,12 @@ public class DBHelper extends SQLiteOpenHelper {
                 "amount INTEGER, " +
                 "transferDate TEXT, " +
                 "sentToPerson TEXT, " +
-                "employeeId INTEGER, " +  // Yeni eklenen sütun
-                "FOREIGN KEY (employeeId) REFERENCES " + TABLE_EMPLOYEES + "(id))";
+                "employeeId INTEGER, " +
+                "FOREIGN KEY (employeeId) REFERENCES " + TABLE_EMPLOYEES + "(id) ON DELETE CASCADE)";
 
         db.execSQL(createEmployeeTable);
         db.execSQL(createPaymentsTable);
-        db.execSQL(createTransfersTable); // Transfers en sona
+        db.execSQL(createTransfersTable);
     }
     public void onConfigure(SQLiteDatabase db) {
         super.onConfigure(db);
@@ -98,6 +100,34 @@ public class DBHelper extends SQLiteOpenHelper {
             return -1;
         }
     }
+    public Employee getEmployeeById(long employeeId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_EMPLOYEES,
+                new String[]{"id", "name", "surName", "worksDay", "totalMoney", "totalTransfer", "dateIn"},
+                "id=?",
+                new String[]{String.valueOf(employeeId)},
+                null, null, null
+        );
+
+        if(cursor != null && cursor.moveToFirst()) {
+            Employee employee = new Employee();
+            employee.setDbId(cursor.getLong(0));
+            employee.setName(cursor.getString(1));
+            employee.setSurName(cursor.getString(2));
+            employee.setWorksDay(cursor.getInt(3));
+            employee.setTotalMoney(cursor.getInt(4));
+            employee.setTotalTransfer(cursor.getInt(5));
+
+            // Tarih işlemini düzelt
+            String dateString = cursor.getString(6);
+            employee.setDateIn(DateUtils.parseDateArray(dateString));
+
+            cursor.close();
+            return employee;
+        }
+        return null;
+    }
     public ArrayList<EmployeePayment> getPaymentsForEmployee(long employeeId) {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<EmployeePayment> payments = new ArrayList<>();
@@ -108,31 +138,25 @@ public class DBHelper extends SQLiteOpenHelper {
                 "employeeId=?",
                 new String[]{String.valueOf(employeeId)},
                 null, null,
-                "id DESC" // <- Bu satır en yeni ödemeler üstte olacak şekilde sıralar
+                "id DESC"
         );
 
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
-                int amount = cursor.getInt(cursor.getColumnIndexOrThrow("amount"));
-                String paymentType = cursor.getString(cursor.getColumnIndexOrThrow("paymentType"));
-                String paymentDate = cursor.getString(cursor.getColumnIndexOrThrow("paymentDate"));
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                int id = cursor.getInt(0);
+                int amount = cursor.getInt(1);
+                String paymentType = cursor.getString(2);
+                String paymentDate = cursor.getString(3);
 
-                String[] dateParts = paymentDate.split("\\.");
-                int[] dateArray = new int[]{
-                        Integer.parseInt(dateParts[0]),
-                        Integer.parseInt(dateParts[1]),
-                        Integer.parseInt(dateParts[2])
-                };
-
-                EmployeePayment payment = new EmployeePayment(amount, paymentType, dateArray);
+                EmployeePayment payment = new EmployeePayment(amount, paymentType, DateUtils.parseDateArray(paymentDate));
                 payment.setId(id);
                 payments.add(payment);
-            } while (cursor.moveToNext());
+            }
             cursor.close();
         }
         return payments;
     }
+
     public int getTotalPayments() {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT SUM(totalMoney) FROM " + TABLE_EMPLOYEES, null);

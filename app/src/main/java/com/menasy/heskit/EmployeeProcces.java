@@ -37,12 +37,25 @@ public class EmployeeProcces extends Fragment {
             setupButtons();
         }
     }
-
+    public void onResume() {
+        super.onResume();
+        refreshEmployeeData();
+    }
+    public void refreshEmployeeData() {
+        // Veritabanından güncel verileri yükle
+        DBHelper dbHelper = Singleton.getInstance().getDataBase();
+        Employee updatedEmployee = dbHelper.getEmployeeById(selectedEmp.getDbId());
+        if(updatedEmployee != null) {
+            selectedEmp = updatedEmployee;
+            setupUI();
+        }
+    }
     private void setupUI() {
         bnd.empProcTitleTxt.setText(selectedEmp.getNameAndSurname());
         selectedEmp.displayDateIn(bnd.dateInTxt);
         bnd.countDayTxt.setText("Çalıştığı Gün Sayısı: " + selectedEmp.getWorksDay());
         bnd.takedMoneyTxtView.setText("Toplam Harçlık: " + selectedEmp.getTotalMoney() + "₺");
+        bnd.makedTotalTransfer.setText("Toplam Havale: " + selectedEmp.getTotalTransfer() + "₺");
     }
 
     private void setupButtons() {
@@ -98,5 +111,6 @@ public class EmployeeProcces extends Fragment {
         }
         Start.refreshEmployeeCount();
         Start.refreshPaymentTotal();
+        Start.refreshTransferTotal();
     }
 }

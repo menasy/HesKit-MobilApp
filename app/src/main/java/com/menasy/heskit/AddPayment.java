@@ -2,6 +2,7 @@ package com.menasy.heskit;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,7 +21,7 @@ public class AddPayment extends Fragment {
 
     private FragmentAddPaymentBinding bnd;
     private static Employee selectedEmployee;
-    private EmployeeProccesAdapter empProccAdapter;
+    private EmployeeProccesAdapter employeeProccesAdapter;
 
     public static void setSelectedEmployee(Employee employee) {
         selectedEmployee = employee;
@@ -36,21 +37,53 @@ public class AddPayment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (selectedEmployee != null) {
+            setupRecyclerView(); // Önce adapter'ı başlat
             setupButtons();
-            setupUI();
-            setupRecyclerView();
+            updatePaymentUI();
         }
     }
 
-    private void setupUI() {
-        bnd.addPaymentTitleTxtView.setText(selectedEmployee.getNameAndSurname());
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        bnd = null; // Memory leak'i önlemek için
+    }
+    public void onResume() {
+        super.onResume();
+        refreshPaymentData();
+    }
+
+    private void refreshPaymentData() {
+        if(selectedEmployee == null || getContext() == null) return;
+
+        DBHelper dbHelper = Singleton.getInstance().getDataBase();
+        ArrayList<EmployeePayment> payments = dbHelper.getPaymentsForEmployee(selectedEmployee.getDbId());
+
+        if(selectedEmployee.getEmpPaymentLst() != null && employeeProccesAdapter != null) {
+            selectedEmployee.getEmpPaymentLst().clear();
+            selectedEmployee.getEmpPaymentLst().addAll(payments);
+            employeeProccesAdapter.updateList(payments);
+        }
+    }
+    private void updatePaymentUI() {
+        if(bnd != null && selectedEmployee != null && employeeProccesAdapter != null) {
+            bnd.addPaymentTitleTxtView.setText(selectedEmployee.getNameAndSurname());
+            employeeProccesAdapter.updateList(selectedEmployee.getEmpPaymentLst());
+        }
     }
 
     private void setupRecyclerView() {
-        empProccAdapter = new EmployeeProccesAdapter(selectedEmployee.getEmpPaymentLst());
-        empProccAdapter.setOnPaymentClickListener((payment, position) -> showDeletePaymentDialog(payment, position));
-        bnd.paymentRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
-        bnd.paymentRecycler.setAdapter(empProccAdapter);
+        if(selectedEmployee == null || getContext() == null) return;
+
+        employeeProccesAdapter = new EmployeeProccesAdapter(selectedEmployee.getEmpPaymentLst());
+        employeeProccesAdapter.setOnPaymentClickListener((payment, position) -> {
+            if(isAdded()) showDeletePaymentDialog(payment, position);
+        });
+
+        if(bnd != null) {
+            bnd.paymentRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
+            bnd.paymentRecycler.setAdapter(employeeProccesAdapter);
+        }
     }
 
     private void setupButtons() {
@@ -73,7 +106,7 @@ public class AddPayment extends Fragment {
         String amountStr = bnd.moneyEditTxt.getText().toString().trim();
         String paymentTypeStr = bnd.paymentTypeEditTxt.getText().toString().trim();
 
-        if(amountStr.isEmpty()) {
+        if (amountStr.isEmpty()) {
             Toast.makeText(requireContext(), "Lütfen geçerli bir miktar giriniz!", Toast.LENGTH_SHORT).show();
             bnd.addMoneyBut.setEnabled(true);
             return;
@@ -85,7 +118,7 @@ public class AddPayment extends Fragment {
 
         try {
             int amount = Integer.parseInt(amountStr);
-            if(amount <= 0) throw new NumberFormatException();
+            if (amount <= 0) throw new NumberFormatException();
 
             long paymentId = dbHelper.addPayment(
                     amount,
@@ -94,7 +127,7 @@ public class AddPayment extends Fragment {
                     selectedEmployee.getDbId()
             );
 
-            if(paymentId == -1) throw new Exception("Ödeme eklenemedi");
+            if (paymentId == -1) throw new Exception("Ödeme eklenemedi");
 
             selectedEmployee.setTotalMoney(selectedEmployee.getTotalMoney() + amount);
 
@@ -104,23 +137,40 @@ public class AddPayment extends Fragment {
 
             EmployeePayment newPayment = new EmployeePayment(amount, paymentTypeStr, DateUtils.getCurrentDateArray());
             newPayment.setId((int) paymentId);
-            selectedEmployee.getEmpPaymentLst().add(0, newPayment);
-            empProccAdapter.notifyItemInserted(0);
-            bnd.paymentRecycler.smoothScrollToPosition(0);
 
             db.setTransactionSuccessful();
-            Calisanlar.loadEmployeeDataFromDB();
-            Start.refreshPaymentTotal();
-            Toast.makeText(requireContext(), "Harçlık başarıyla eklendi", Toast.LENGTH_SHORT).show();
-            bnd.moneyEditTxt.setText("");
-            bnd.paymentTypeEditTxt.setText("");
-        } catch(Exception e) {
-            Log.e("ADD_PAYMENT", "Hata: ", e);
-            Toast.makeText(requireContext(), "Hata: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        } finally {
             db.endTransaction();
+
+            requireActivity().runOnUiThread(() -> {
+                selectedEmployee.getEmpPaymentLst().add(0, newPayment);
+                if (employeeProccesAdapter != null) {
+                    employeeProccesAdapter.updateList(selectedEmployee.getEmpPaymentLst());
+                    employeeProccesAdapter.notifyDataSetChanged();  // **Tam güncelleme yap**
+                    bnd.paymentRecycler.smoothScrollToPosition(0);
+                }
+                Calisanlar.loadEmployeeDataFromDB();
+                Start.refreshPaymentTotal();
+                Toast.makeText(requireContext(), "Harçlık başarıyla eklendi", Toast.LENGTH_SHORT).show();
+                bnd.moneyEditTxt.setText("");
+                bnd.paymentTypeEditTxt.setText("");
+            });
+
+        } catch (Exception e) {
+            Log.e("ADD_PAYMENT", "Hata: ", e);
+            requireActivity().runOnUiThread(() ->
+                    Toast.makeText(requireContext(), "Hata: " + e.getMessage(), Toast.LENGTH_LONG).show()
+            );
+        } finally {
+            if (db.inTransaction()) db.endTransaction();
             bnd.addMoneyBut.setEnabled(true);
         }
+    }
+
+
+    private void showToast(String message) {
+        requireActivity().runOnUiThread(() ->
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show()
+        );
     }
 
     private void showDeletePaymentDialog(EmployeePayment payment, int position) {
@@ -138,18 +188,28 @@ public class AddPayment extends Fragment {
         db.beginTransaction();
 
         try {
+            // Ödemeyi veritabanından sil
             int deletedRows = db.delete(DBHelper.TABLE_PAYMENTS, "id=?", new String[]{String.valueOf(payment.getId())});
+
             if(deletedRows > 0) {
-                selectedEmployee.setTotalMoney(selectedEmployee.getTotalMoney() - payment.getTakedMoney());
+                // TotalMoney'i hem local hem veritabanında güncelle
+                int newTotal = selectedEmployee.getTotalMoney() - payment.getTakedMoney();
+                selectedEmployee.setTotalMoney(newTotal);
+
                 ContentValues values = new ContentValues();
-                values.put("totalMoney", selectedEmployee.getTotalMoney());
+                values.put("totalMoney", newTotal);
                 db.update(DBHelper.TABLE_EMPLOYEES, values, "id=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
 
+                // Listeyi ve adapter'i güncelle
                 selectedEmployee.getEmpPaymentLst().remove(position);
-                empProccAdapter.notifyItemRemoved(position);
+                employeeProccesAdapter.notifyItemRemoved(position);
+
+                // Verileri yeniden yükle
+                refreshPaymentData();
+                db.setTransactionSuccessful();
+
                 Calisanlar.loadEmployeeDataFromDB();
                 Start.refreshPaymentTotal();
-                db.setTransactionSuccessful();
             }
         } catch(Exception e) {
             Log.e("DELETE_PAYMENT", "Hata: ", e);
@@ -171,11 +231,14 @@ public class AddPayment extends Fragment {
             db.update(DBHelper.TABLE_EMPLOYEES, values, "id=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
 
             selectedEmployee.getEmpPaymentLst().clear();
-            empProccAdapter.updateList(new ArrayList<>());
+            employeeProccesAdapter.updateList(new ArrayList<>());
+            selectedEmployee.setTotalMoney(0);
+
+            db.setTransactionSuccessful();
+
             Calisanlar.loadEmployeeDataFromDB();
             Start.refreshPaymentTotal();
-            selectedEmployee.setTotalMoney(0);
-            db.setTransactionSuccessful();
+
             Toast.makeText(requireContext(), "Tüm ödemeler silindi", Toast.LENGTH_SHORT).show();
         } catch(Exception e) {
             Log.e("CLEAN_PAYMENTS", "Hata: ", e);

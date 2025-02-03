@@ -43,7 +43,7 @@ public class CalisanAdapter extends RecyclerView.Adapter<CalisanAdapter.CalisanH
     @Override
     public void onBindViewHolder(@NonNull CalisanHolder holder, int position) {
         Employee emp = adapterEmpList.get(position);
-        String text = emp.getNameAndSurname() + "    " + emp.getTotalMoney() + "₺";
+        String text = emp.getNameAndSurname() + "    " + emp.getTotalTransferAndPayment() + "₺";
         SpannableString spannable = new SpannableString(text);
         spannable.setSpan(
                 new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.currency_green)),

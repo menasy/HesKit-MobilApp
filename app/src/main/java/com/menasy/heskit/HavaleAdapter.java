@@ -8,9 +8,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.menasy.heskit.databinding.TransferRecyclerBinding;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class HavaleAdapter extends RecyclerView.Adapter<HavaleAdapter.HavaleHolder> {
+public class HavaleAdapter extends RecyclerView.Adapter<HavaleAdapter.HavaleHolder> implements Serializable {
 
     private ArrayList<Transfer> adapterPaymentList;
     private OnPaymentClickListener listener;

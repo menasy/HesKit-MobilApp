@@ -54,11 +54,21 @@ public class MainActivity extends AppCompatActivity {
 
     public void navigateToEmpProcces(Employee employee) {
         EmployeeProcces.setSelectedEmp(employee);
-        showFragment(new EmployeeProcces());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragmentContainer, new EmployeeProcces(), "employee_procces") // Tag ekleyin
+                .addToBackStack(null)
+                .commit();
     }
 
     public void navigateToAddPayment(Employee employee) {
         AddPayment.setSelectedEmployee(employee);
         showFragment(new AddPayment());
+    }
+    public void refreshEmployeeProcces() {
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentByTag("employee_procces");
+        if(fragment instanceof EmployeeProcces) {
+            ((EmployeeProcces) fragment).refreshEmployeeData();
+        }
     }
 }
