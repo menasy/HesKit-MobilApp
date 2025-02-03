@@ -10,6 +10,7 @@ import com.menasy.heskit.databinding.TransferRecyclerBinding;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class HavaleAdapter extends RecyclerView.Adapter<HavaleAdapter.HavaleHolder> implements Serializable {
 
@@ -57,17 +58,16 @@ public class HavaleAdapter extends RecyclerView.Adapter<HavaleAdapter.HavaleHold
         return (adapterPaymentList != null) ? adapterPaymentList.size() : 0;
     }
 
-    public void updateList(ArrayList<Transfer> newList) {
-        adapterPaymentList.clear();
-        if (newList != null) {
-            adapterPaymentList.addAll(newList);
-        }
+    public void updateList(List<Transfer> newList) {
+        this.adapterPaymentList = new ArrayList<>(newList);
         notifyDataSetChanged();
     }
 
     public void addPayment(Transfer payment) {
-        adapterPaymentList.add(0, payment); // Listenin başına ekle
+        if(adapterPaymentList == null) adapterPaymentList = new ArrayList<>();
+        adapterPaymentList.add(0, payment);
         notifyItemInserted(0);
+        notifyDataSetChanged();
     }
 
     public static class HavaleHolder extends RecyclerView.ViewHolder {
@@ -78,11 +78,5 @@ public class HavaleAdapter extends RecyclerView.Adapter<HavaleAdapter.HavaleHold
             this.binding = binding;
         }
     }
-    public void removeItem(int position) {
-        if(position >= 0 && position < adapterPaymentList.size()) {
-            adapterPaymentList.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, getItemCount());
-        }
-    }
+
 }

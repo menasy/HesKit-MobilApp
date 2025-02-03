@@ -103,9 +103,9 @@ public class Calisanlar extends Fragment {
                     long dbId = cursor.getLong(idColumnIndex);
                     String name = cursor.getString(nameColumnIndex);
                     String surName = cursor.getString(surNameColumnIndex);
-                    int totalMoney = cursor.getInt(totalMoneyColumnIndex);
+                    long totalMoney = cursor.getLong(totalMoneyColumnIndex);
                     String dateInStr = cursor.getString(dateInColumnIndex);
-                    int totalTransfer = cursor.getInt(totalTransferIndex);
+                    long totalTransfer = cursor.getLong(totalTransferIndex);
 
                     int[] dateIn = processDateIn(dateInStr);
                     Employee emp = new Employee(name, surName, dateIn);

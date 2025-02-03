@@ -2,7 +2,6 @@ package com.menasy.heskit;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -117,7 +116,7 @@ public class AddPayment extends Fragment {
         db.beginTransaction();
 
         try {
-            int amount = Integer.parseInt(amountStr);
+            long amount = Integer.parseUnsignedInt(amountStr);
             if (amount <= 0) throw new NumberFormatException();
 
             long paymentId = dbHelper.addPayment(
@@ -166,13 +165,6 @@ public class AddPayment extends Fragment {
         }
     }
 
-
-    private void showToast(String message) {
-        requireActivity().runOnUiThread(() ->
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show()
-        );
-    }
-
     private void showDeletePaymentDialog(EmployeePayment payment, int position) {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Ödeme Silme")
@@ -193,7 +185,7 @@ public class AddPayment extends Fragment {
 
             if(deletedRows > 0) {
                 // TotalMoney'i hem local hem veritabanında güncelle
-                int newTotal = selectedEmployee.getTotalMoney() - payment.getTakedMoney();
+                long newTotal = selectedEmployee.getTotalMoney() - payment.getTakedMoney();
                 selectedEmployee.setTotalMoney(newTotal);
 
                 ContentValues values = new ContentValues();

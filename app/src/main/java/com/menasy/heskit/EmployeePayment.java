@@ -12,11 +12,11 @@ public class EmployeePayment
     }
     private int id;
     private long   dbId;
-    private int takedMoney;
+    private long takedMoney;
     private String paymentType;
     private int[] date;
 
-    public EmployeePayment(int takedMoney, String paymentType, int[] date) {
+    public EmployeePayment(long takedMoney, String paymentType, int[] date) {
         this.takedMoney = takedMoney;
         this.date = date;
         this.id = index++;
@@ -26,7 +26,7 @@ public class EmployeePayment
     // Getter ve Setter metodları
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
-    public int getTakedMoney() { return takedMoney; }
+    public long getTakedMoney() { return takedMoney; }
     public int[] getDate() { return date; }
     public String getTakedMoneyStr() { return String.format("\uD83D\uDCB0 %d₺",takedMoney); }
 

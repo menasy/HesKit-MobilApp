@@ -64,11 +64,5 @@ public class MainActivity extends AppCompatActivity {
         AddPayment.setSelectedEmployee(employee);
         showFragment(new AddPayment());
     }
-    public void refreshEmployeeProcces() {
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentByTag("employee_procces");
-        if(fragment instanceof EmployeeProcces) {
-            ((EmployeeProcces) fragment).refreshEmployeeData();
-        }
-    }
+
 }

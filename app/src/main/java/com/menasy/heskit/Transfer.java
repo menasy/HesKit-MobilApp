@@ -4,10 +4,10 @@ public class Transfer
 {
     private String transferDate;
     private String sentToPerson;
-    private int amountTransfer;
+    private long amountTransfer;
     private int id;
 
-    public Transfer(int amountTransfer, String transferDate, String sentToPerson)
+    public Transfer(long amountTransfer, String transferDate, String sentToPerson)
     {
         this.amountTransfer = amountTransfer;
         this.transferDate = transferDate;
@@ -30,11 +30,11 @@ public class Transfer
         this.sentToPerson = sentToPerson;
     }
 
-    public int getAmountTransfer() {
+    public long getAmountTransfer() {
         return amountTransfer;
     }
 
-    public void setAmountTransfer(int amountTransfer) {
+    public void setAmountTransfer(long amountTransfer) {
         this.amountTransfer = amountTransfer;
     }
 

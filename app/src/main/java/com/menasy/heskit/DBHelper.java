@@ -27,7 +27,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("PRAGMA foreign_keys = ON;");
 
-        // Transfers tablosunu en sona aldık
+
         String createEmployeeTable = "CREATE TABLE " + TABLE_EMPLOYEES + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "name TEXT, " +
@@ -57,11 +57,11 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(createPaymentsTable);
         db.execSQL(createTransfersTable);
     }
+    @Override
     public void onConfigure(SQLiteDatabase db) {
         super.onConfigure(db);
-        // Yabancı anahtar kısıtlamalarını etkinleştir
         db.setForeignKeyConstraintsEnabled(true);
-        // Veya: db.execSQL("PRAGMA foreign_keys = ON;");
+        db.execSQL("PRAGMA foreign_keys=ON;");
     }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -71,7 +71,7 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long addEmployee(String name, String surName, int worksDay, int totalMoney, String dateIn) {
+    public long addEmployee(String name, String surName, int worksDay, long totalMoney, String dateIn) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", name);
@@ -85,7 +85,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return employeeId; // Eklenen çalışanın ID'sini döner
     }
 
-    public long addPayment(int amount, String paymentType, String paymentDate, long employeeId) {
+    public long addPayment(long amount, String paymentType, String paymentDate, long employeeId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("amount", amount);
@@ -144,7 +144,7 @@ public class DBHelper extends SQLiteOpenHelper {
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 int id = cursor.getInt(0);
-                int amount = cursor.getInt(1);
+                long amount = cursor.getLong(1);
                 String paymentType = cursor.getString(2);
                 String paymentDate = cursor.getString(3);
 
@@ -157,10 +157,10 @@ public class DBHelper extends SQLiteOpenHelper {
         return payments;
     }
 
-    public int getTotalPayments() {
+    public long getTotalPayments() {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT SUM(totalMoney) FROM " + TABLE_EMPLOYEES, null);
-        int total = 0;
+        long total = 0;
         if(cursor.moveToFirst()) {
             total = cursor.getInt(0);
         }
@@ -178,7 +178,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public long addTransfer(int amount, String transferDate, String sentToPerson) {
+    public long addTransfer(long amount, String transferDate, String sentToPerson) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("amount", amount);
@@ -212,7 +212,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
                 // Sütunlardan veriler alınır
                 int id = cursor.getInt(idIndex);
-                int amount = cursor.getInt(amountIndex);
+                long amount = cursor.getLong(amountIndex);
                 String transferDate = cursor.getString(transferDateIndex);
                 String sentToPerson = cursor.getString(sentToPersonIndex);
 
@@ -226,10 +226,10 @@ public class DBHelper extends SQLiteOpenHelper {
         return transfers;
     }
 
-    public int getTotalTransfers() {
+    public long getTotalTransfers() {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT SUM(amount) FROM " + TABLE_TRANSFERS, null);
-        int total = cursor.moveToFirst() ? cursor.getInt(0) : 0;
+        long total = cursor.moveToFirst() ? cursor.getLong(0) : 0;
         cursor.close();
         return total;
     }
@@ -270,7 +270,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 }
 
                 int id = cursor.getInt(idIndex);
-                int amount = cursor.getInt(amountIndex);
+                long amount = cursor.getLong(amountIndex);
                 String transferDate = cursor.getString(transferDateIndex);
                 String sentToPerson = cursor.getString(sentToPersonIndex);
 
@@ -286,7 +286,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return transfers;
     }
 
-    public long addTransfer(int amount, String transferDate, String sentToPerson, long employeeId) {
+    public long addTransfer(long amount, String transferDate, String sentToPerson, long employeeId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("amount", amount);

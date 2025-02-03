@@ -22,8 +22,8 @@ public class Employee implements Serializable
     private String name;
     private String surName;
     private int worksDay;
-    private int totalMoney;
-    private int totalTransfer;
+    private long totalMoney;
+    private long totalTransfer;
     private ArrayList <EmployeePayment> empPaymentLst;
     private ArrayList <Transfer>    empTransferLst;
 
@@ -97,7 +97,7 @@ public class Employee implements Serializable
         this.dbId = dbId;
     }
 
-    public void setTotalMoney(int totalMoney) {
+    public void setTotalMoney(long totalMoney) {
         this.totalMoney = totalMoney;
     }
 
@@ -149,7 +149,7 @@ public class Employee implements Serializable
         this.id = id;
     }
 
-    public int getTotalMoney()
+    public long getTotalMoney()
     {
         return this.totalMoney;
     }
@@ -161,25 +161,9 @@ public class Employee implements Serializable
         dateIn[2] = year;
     }
 
-    public int getTotalTransferAndPayment()
+    public long getTotalTransferAndPayment()
     {
         return (this.totalMoney + this.totalTransfer);
-    }
-    public void deleteEmpPayment(int payment, int[] date)
-    {
-        if (empPaymentLst != null)
-        {
-            int id;
-            for (int i = 0; i < empPaymentLst.size(); i++)
-            {
-                id = empPaymentLst.get(i).getId();
-                if (id == empPaymentLst.get(i).getId())
-                {
-                    empPaymentLst.remove(i);
-                    break;
-                }
-            }
-        }
     }
 
     public Long empPutDataBase() {
@@ -200,11 +184,11 @@ public class Employee implements Serializable
         this.empTransferLst = empTransferLst;
     }
 
-    public int getTotalTransfer() {
+    public long getTotalTransfer() {
         return totalTransfer;
     }
 
-    public void setTotalTransfer(int totalTransfer) {
+    public void setTotalTransfer(long totalTransfer) {
         this.totalTransfer = totalTransfer;
     }
 

@@ -16,11 +16,6 @@ public class Start extends Fragment {
     private static Start instance;
     private OnBackPressedCallback backPressedCallback;
 
-    // Instance alma metodu ekledik
-    private static Start getInstance() {
-        return instance;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentStartBinding.inflate(inflater, container, false);
@@ -54,8 +49,8 @@ public class Start extends Fragment {
 
     private void updateTotalPayment() {
         new Thread(() -> {
-            int total = Singleton.getInstance().getDataBase().getTotalPayments();
-            int totalAll = Singleton.getInstance().getDataBase().getTotalTransfers()
+            long total = Singleton.getInstance().getDataBase().getTotalPayments();
+            long totalAll = Singleton.getInstance().getDataBase().getTotalTransfers()
                     + Singleton.getInstance().getDataBase().getTotalPayments();
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
@@ -80,8 +75,8 @@ public class Start extends Fragment {
     private void updateTotalTransfer() {
         new Thread(() -> {
             try {
-                int total = Singleton.getInstance().getDataBase().getTotalTransfers();
-                int totalAll = Singleton.getInstance().getDataBase().getTotalTransfers()
+                long total = Singleton.getInstance().getDataBase().getTotalTransfers();
+                long totalAll = Singleton.getInstance().getDataBase().getTotalTransfers()
                         + Singleton.getInstance().getDataBase().getTotalPayments();
                 if (getActivity() != null && isAdded()) {
                     getActivity().runOnUiThread(() -> {

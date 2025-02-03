@@ -42,7 +42,13 @@ public class Havale extends Fragment {
             setupButtons();
         }
     }
-
+    public void onResume() {
+        super.onResume();
+        loadTransfersFromDB();
+        if(havaleAdapter != null) {
+            havaleAdapter.updateList(selectedEmployee.getEmpTransferLst());
+        }
+    }
     private void loadTransfersFromDB() {
         DBHelper dbHelper = Singleton.getInstance().getDataBase();
         ArrayList<Transfer> transfers = dbHelper.getTransfersForEmployee(selectedEmployee.getDbId());
@@ -53,8 +59,8 @@ public class Havale extends Fragment {
         selectedEmployee.setTotalTransfer(calculateTotalTransfer(transfers));
     }
 
-    private int calculateTotalTransfer(ArrayList<Transfer> transfers) {
-        int total = 0;
+    private long calculateTotalTransfer(ArrayList<Transfer> transfers) {
+        long total = 0;
         for (Transfer t : transfers) {
             total += t.getAmountTransfer();
         }
@@ -93,7 +99,7 @@ public class Havale extends Fragment {
         db.beginTransaction();
 
         try {
-            int amount = Integer.parseInt(amountStr);
+            long amount = Integer.parseUnsignedInt(amountStr);
             if(amount <= 0) throw new NumberFormatException();
 
             long transferId = dbHelper.addTransfer(
@@ -105,30 +111,30 @@ public class Havale extends Fragment {
 
             if(transferId == -1) throw new Exception("Havale eklenemedi");
 
-            // Veritabanında totalTransfer'i güncelle
+            // Veritabanı işlemlerini tamamla
             selectedEmployee.setTotalTransfer(selectedEmployee.getTotalTransfer() + amount);
             ContentValues values = new ContentValues();
             values.put("totalTransfer", selectedEmployee.getTotalTransfer());
             db.update(DBHelper.TABLE_EMPLOYEES, values, "id=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
-
-            Transfer newTransfer = new Transfer(amount, DateUtils.getCurrentDate(), recipient);
-            newTransfer.setId((int) transferId);
-            selectedEmployee.getEmpTransferLst().add(0, newTransfer);
-            havaleAdapter.notifyItemInserted(0);
-            bnd.transferRecyclerView.smoothScrollToPosition(0);
-
             db.setTransactionSuccessful();
 
-            // Verileri yenile
-            Calisanlar.loadEmployeeDataFromDB();
-            Start.refreshTransferTotal();
+            // UI güncellemelerini ana thread'de yap
+            requireActivity().runOnUiThread(() -> {
+                // Verileri yeniden yükle ve adapter'ı güncelle
+                loadTransfersFromDB();
+                havaleAdapter.updateList(selectedEmployee.getEmpTransferLst());
 
-            Toast.makeText(requireContext(), "Havale başarıyla eklendi", Toast.LENGTH_SHORT).show();
-            bnd.transferAmountTxt.setText("");
-            bnd.sentPersonTxt.setText("");
+                bnd.transferAmountTxt.setText("");
+                bnd.sentPersonTxt.setText("");
+
+                Toast.makeText(requireContext(), "Havale başarıyla eklendi", Toast.LENGTH_SHORT).show();
+            });
+
         } catch(Exception e) {
             Log.e("ADD_TRANSFER", "Hata: ", e);
-            Toast.makeText(requireContext(), "Hata: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            requireActivity().runOnUiThread(() ->
+                    Toast.makeText(requireContext(), "Hata: " + e.getMessage(), Toast.LENGTH_LONG).show()
+            );
         } finally {
             db.endTransaction();
         }
@@ -151,20 +157,33 @@ public class Havale extends Fragment {
         try {
             int deletedRows = db.delete(DBHelper.TABLE_TRANSFERS, "id=?", new String[]{String.valueOf(transfer.getId())});
             if(deletedRows > 0) {
-                // Veritabanında totalTransfer'i güncelle
+                // Veritabanı güncellemeleri
                 selectedEmployee.setTotalTransfer(selectedEmployee.getTotalTransfer() - transfer.getAmountTransfer());
                 ContentValues values = new ContentValues();
                 values.put("totalTransfer", selectedEmployee.getTotalTransfer());
                 db.update(DBHelper.TABLE_EMPLOYEES, values, "id=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
 
+                // Liste ve adapter güncelleme
                 selectedEmployee.getEmpTransferLst().remove(position);
-                havaleAdapter.notifyItemRemoved(position);
+
+                // Eğer son öğe silindiyse
+                if(selectedEmployee.getEmpTransferLst().isEmpty()) {
+                    havaleAdapter.updateList(new ArrayList<>()); // Tüm listeyi temizle
+                } else {
+                    havaleAdapter.notifyItemRemoved(position);
+                }
 
                 db.setTransactionSuccessful();
 
-                // Verileri yenile
-                Calisanlar.loadEmployeeDataFromDB();
-                Start.refreshTransferTotal();
+                // Verileri yeniden yükle
+                loadTransfersFromDB();
+                havaleAdapter.updateList(selectedEmployee.getEmpTransferLst()); // Tüm listeyi güncelle
+
+                // UI yenileme
+                requireActivity().runOnUiThread(() -> {
+                    Start.refreshTransferTotal();
+                    Calisanlar.loadEmployeeDataFromDB();
+                });
             }
         } catch(Exception e) {
             Log.e("DELETE_TRANSFER", "Hata: ", e);

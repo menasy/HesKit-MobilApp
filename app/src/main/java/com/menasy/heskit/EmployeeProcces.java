@@ -1,7 +1,6 @@
 package com.menasy.heskit;
 
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.menasy.heskit.databinding.FragmentEmployeeProccesBinding;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class EmployeeProcces extends Fragment {
 
@@ -54,8 +56,8 @@ public class EmployeeProcces extends Fragment {
         bnd.empProcTitleTxt.setText(selectedEmp.getNameAndSurname());
         selectedEmp.displayDateIn(bnd.dateInTxt);
         bnd.countDayTxt.setText("Çalıştığı Gün Sayısı: " + selectedEmp.getWorksDay());
-        bnd.takedMoneyTxtView.setText("Toplam Harçlık: " + selectedEmp.getTotalMoney() + "₺");
-        bnd.makedTotalTransfer.setText("Toplam Havale: " + selectedEmp.getTotalTransfer() + "₺");
+        bnd.takedMoneyTxtView.setText("Harçlık: " + selectedEmp.getTotalMoney() + "₺");
+        bnd.makedTotalTransfer.setText("Havale: " + selectedEmp.getTotalTransfer() + "₺");
     }
 
     private void setupButtons() {
@@ -82,35 +84,48 @@ public class EmployeeProcces extends Fragment {
     }
 
     private void deleteEmployee() {
-        DBHelper dbHelper = Singleton.getInstance().getDataBase();
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.beginTransaction();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            DBHelper dbHelper = Singleton.getInstance().getDataBase();
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.beginTransaction();
 
-        try {
-            db.delete(
-                    DBHelper.TABLE_PAYMENTS,
-                    "employeeId=?",
-                    new String[]{String.valueOf(selectedEmp.getDbId())}
-            );
+            try {
+                // Önce ilişkili kayıtları sil
+                db.delete(DBHelper.TABLE_PAYMENTS, "employeeId=?", new String[]{String.valueOf(selectedEmp.getDbId())});
+                db.delete(DBHelper.TABLE_TRANSFERS, "employeeId=?", new String[]{String.valueOf(selectedEmp.getDbId())});
 
-            int deletedRows = db.delete(
-                    DBHelper.TABLE_EMPLOYEES,
-                    "id=?",
-                    new String[]{String.valueOf(selectedEmp.getDbId())}
-            );
+                // Çalışanı sil
+                int deletedRows = db.delete(
+                        DBHelper.TABLE_EMPLOYEES,
+                        "id=?",
+                        new String[]{String.valueOf(selectedEmp.getDbId())}
+                );
 
-            if (deletedRows > 0) {
-                Calisanlar.empList.removeIf(e -> e.getDbId() == selectedEmp.getDbId());
-                db.setTransactionSuccessful();
-                requireActivity().onBackPressed();
+                if(deletedRows > 0) {
+                    db.setTransactionSuccessful();
+
+                    // UI Güncellemeleri
+                    requireActivity().runOnUiThread(() -> {
+                        Calisanlar.empList.removeIf(e -> e.getDbId() == selectedEmp.getDbId());
+                        Start.refreshEmployeeCount();
+                        Start.refreshPaymentTotal();
+                        Start.refreshTransferTotal();
+                        Toast.makeText(getContext(), "Çalışan silindi", Toast.LENGTH_SHORT).show();
+                        if(isAdded() && !isDetached()) {
+                            requireActivity().onBackPressed();
+                        }
+                    });
+                }
+            } catch(Exception e) {
+                Log.e("DELETE_EMP", "Hata: ", e);
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "Silme işlemi başarısız: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
+            } finally {
+                db.endTransaction();
+                executor.shutdown();
             }
-        } catch (Exception e) {
-            Log.e("DELETE_EMP", "Hata: ", e);
-        } finally {
-            db.endTransaction();
-        }
-        Start.refreshEmployeeCount();
-        Start.refreshPaymentTotal();
-        Start.refreshTransferTotal();
+        });
     }
 }
