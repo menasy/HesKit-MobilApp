@@ -22,10 +22,12 @@ public class Employee implements Serializable
     private String name;
     private String surName;
     private int worksDay;
+    private int totalNotWorksDay;
     private long totalMoney;
     private long totalTransfer;
     private ArrayList <EmployeePayment> empPaymentLst;
     private ArrayList <Transfer>    empTransferLst;
+    private ArrayList <NotWorksDay>    empNotWorksDayLst;
 
 
 
@@ -37,6 +39,7 @@ public class Employee implements Serializable
         this.surName = surName;
         this.empPaymentLst = new ArrayList<>();
         this.empTransferLst = new ArrayList<>();
+        this.empNotWorksDayLst = new ArrayList<>();
         for(int i = 0; i < 3; i++)
             this.dateIn[i] = dateIn[i];
         this.worksDay = calcWorksDay(dateIn);
@@ -217,5 +220,22 @@ public class Employee implements Serializable
             this.dateIn[1] = dateArray[1];
             this.dateIn[2] = dateArray[2];
         }
+    }
+
+    public ArrayList<NotWorksDay> getEmpNotWorksDayLst() {
+        if (empNotWorksDayLst == null) empNotWorksDayLst = new ArrayList<>();
+        return empNotWorksDayLst;
+    }
+
+    public void setEmpNotWorksDayLst(ArrayList<NotWorksDay> empNotWorksDayLst) {
+        this.empNotWorksDayLst = empNotWorksDayLst;
+    }
+
+    public int getTotalNotWorksDay() {
+        return totalNotWorksDay;
+    }
+
+    public void setTotalNotWorksDay(int totalNotWorksDay) {
+        this.totalNotWorksDay = totalNotWorksDay;
     }
 }

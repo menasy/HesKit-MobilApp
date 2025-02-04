@@ -14,11 +14,13 @@ import java.util.Date;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "employee.db";
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 3;
 
     public static final String TABLE_EMPLOYEES = "employees";
     public static final String TABLE_PAYMENTS = "payments";
     public static final String TABLE_TRANSFERS = "transfers";
+    public static final String TABLE_NOT_WORKS_DAYS = "not_works_days";
+
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -35,6 +37,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "worksDay INTEGER, " +
                 "totalMoney INTEGER, " +
                 "totalTransfer INTEGER DEFAULT 0, " +
+                "totalNotWorksDay INTEGER DEFAULT 0, " +
                 "dateIn TEXT)";
 
         String createPaymentsTable = "CREATE TABLE " + TABLE_PAYMENTS + " (" +
@@ -53,9 +56,19 @@ public class DBHelper extends SQLiteOpenHelper {
                 "employeeId INTEGER, " +
                 "FOREIGN KEY (employeeId) REFERENCES " + TABLE_EMPLOYEES + "(id) ON DELETE CASCADE)";
 
+        String createNotWorksDaysTable = "CREATE TABLE " + TABLE_NOT_WORKS_DAYS + " (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "days INTEGER, " +
+                "date TEXT, " +
+                "reason TEXT, " +
+                "employeeId INTEGER, " +
+                "FOREIGN KEY (employeeId) REFERENCES " + TABLE_EMPLOYEES + "(id) ON DELETE CASCADE)";
+
         db.execSQL(createEmployeeTable);
         db.execSQL(createPaymentsTable);
         db.execSQL(createTransfersTable);
+        db.execSQL(createNotWorksDaysTable);
+
     }
     @Override
     public void onConfigure(SQLiteDatabase db) {
@@ -295,6 +308,50 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put("employeeId", employeeId); // Yeni eklenen sütun
 
         return db.insert(TABLE_TRANSFERS, null, values);
+    }
+
+    public long addNotWorksDay(int days, String date, String reason, long employeeId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("days", days);
+        values.put("date", date);
+        values.put("reason", reason);
+        values.put("employeeId", employeeId);
+        return db.insert(TABLE_NOT_WORKS_DAYS, null, values);
+    }
+
+    public ArrayList<NotWorksDay> getNotWorksDaysForEmployee(long employeeId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<NotWorksDay> days = new ArrayList<>();
+
+        Cursor cursor = db.query(
+                TABLE_NOT_WORKS_DAYS,
+                new String[]{"id", "days", "date", "reason"},
+                "employeeId=?",
+                new String[]{String.valueOf(employeeId)},
+                null, null,
+                "id DESC"
+        );
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                int id = cursor.getInt(0);
+                int daysCount = cursor.getInt(1);
+                String date = cursor.getString(2);
+                String reason = cursor.getString(3);
+
+                NotWorksDay notWorksDay = new NotWorksDay(daysCount, date, reason);
+                notWorksDay.setId(id);
+                days.add(notWorksDay);
+            }
+            cursor.close();
+        }
+        return days;
+    }
+
+    public int deleteNotWorksDay(int dayId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete(TABLE_NOT_WORKS_DAYS, "id=?", new String[]{String.valueOf(dayId)});
     }
 }
 

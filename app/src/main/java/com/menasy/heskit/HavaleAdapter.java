@@ -21,7 +21,7 @@ public class HavaleAdapter extends RecyclerView.Adapter<HavaleAdapter.HavaleHold
         void onPaymentClick(Transfer payment, int position);
     }
 
-    // Constructor: Transfer türünde liste ve listener alır
+
     public HavaleAdapter(ArrayList<Transfer> adapterPaymentList, OnPaymentClickListener listener) {
         this.adapterPaymentList = (adapterPaymentList != null) ? adapterPaymentList : new ArrayList<>();
         this.listener = listener;

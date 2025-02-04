@@ -58,6 +58,7 @@ public class EmployeeProcces extends Fragment {
         bnd.countDayTxt.setText("Çalıştığı Gün Sayısı: " + selectedEmp.getWorksDay());
         bnd.takedMoneyTxtView.setText("Harçlık: " + selectedEmp.getTotalMoney() + "₺");
         bnd.makedTotalTransfer.setText("Havale: " + selectedEmp.getTotalTransfer() + "₺");
+        bnd.empNotWorksDayTxtView.setText("Çalışmadığı Gün sayısı: " + selectedEmp.getTotalNotWorksDay());
     }
 
     private void setupButtons() {
@@ -69,6 +70,12 @@ public class EmployeeProcces extends Fragment {
         bnd.getHavaleFragmentBut.setOnClickListener(v -> {
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).navigateToTransfers(selectedEmp);
+            }
+        });
+
+        bnd.empAddNotWorksDayBut.setOnClickListener(v -> {
+            if(getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).navigateToNotWorksDays(selectedEmp);
             }
         });
         bnd.deleteEmpBut.setOnClickListener(v -> showDeleteConfirmation());

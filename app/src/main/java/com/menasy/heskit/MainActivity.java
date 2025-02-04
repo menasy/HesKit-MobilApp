@@ -65,4 +65,8 @@ public class MainActivity extends AppCompatActivity {
         showFragment(new AddPayment());
     }
 
+    public void navigateToNotWorksDays(Employee employee) {
+        NotWorksDayProcces.setSelectedEmployee(employee);
+        showFragment(new NotWorksDayProcces());
+    }
 }
