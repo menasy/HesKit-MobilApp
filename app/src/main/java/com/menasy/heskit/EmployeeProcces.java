@@ -2,11 +2,16 @@ package com.menasy.heskit;
 
 import android.app.AlertDialog;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,13 +57,32 @@ public class EmployeeProcces extends Fragment {
             setupUI();
         }
     }
+
+    private void setFormattedText(TextView textView, String label, String value, int color) {
+        String fullText = label + " " + value;
+        SpannableString spannable = new SpannableString(fullText);
+
+        int start = fullText.indexOf(value); // Değerin başladığı yeri bul
+        if (start != -1) {
+            spannable.setSpan(new ForegroundColorSpan(color), start, fullText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        textView.setText(spannable);
+    }
+
+    private void setStyledText(TextView textView, String label, String value, boolean isMoney) {
+        int color = isMoney ? Color.GREEN : Color.CYAN; // Para içerenler yeşil, diğerleri mavi
+        setFormattedText(textView, label, value, color);
+    }
+
     private void setupUI() {
         bnd.empProcTitleTxt.setText(selectedEmp.getNameAndSurname());
-        selectedEmp.displayDateIn(bnd.dateInTxt);
-        bnd.countDayTxt.setText("Çalıştığı Gün Sayısı: " + selectedEmp.getWorksDay());
-        bnd.takedMoneyTxtView.setText("Harçlık: " + selectedEmp.getTotalMoney() + "₺");
-        bnd.makedTotalTransfer.setText("Havale: " + selectedEmp.getTotalTransfer() + "₺");
-        bnd.empNotWorksDayTxtView.setText("Çalışmadığı Gün sayısı: " + selectedEmp.getTotalNotWorksDay());
+        setStyledText(bnd.dateInTxt, "Başlangıç Tarihi: ", selectedEmp.getDateInStr() + "", false);
+        setStyledText(bnd.countDayTxt, "Çalıştığı Gün Sayısı: ", selectedEmp.getWorksDay() + "", false);
+        setStyledText(bnd.takedMoneyTxtView, "Harçlık: ", selectedEmp.getTotalMoney() + "₺", true);
+        setStyledText(bnd.makedTotalTransfer, "Havale: ", selectedEmp.getTotalTransfer() + "₺", true);
+        setStyledText(bnd.empNotWorksDayTxtView, "Çalışmadığı Gün Sayısı: ", selectedEmp.getTotalNotWorksDay() + "", false);
+
     }
 
     private void setupButtons() {

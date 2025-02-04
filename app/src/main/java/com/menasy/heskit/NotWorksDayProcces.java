@@ -2,6 +2,7 @@ package com.menasy.heskit;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -70,74 +71,96 @@ public class NotWorksDayProcces extends Fragment {
 
     private void loadData() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            DBHelper dbHelper = Singleton.getInstance().getDataBase();
-            ArrayList<NotWorksDay> days = dbHelper.getNotWorksDaysForEmployee(selectedEmployee.getDbId());
+            try {
+                DBHelper dbHelper = Singleton.getInstance().getDataBase();
+                ArrayList<NotWorksDay> days = dbHelper.getNotWorksDaysForEmployee(selectedEmployee.getDbId());
 
-            requireActivity().runOnUiThread(() -> {
-                selectedEmployee.getEmpNotWorksDayLst().clear();
-                selectedEmployee.getEmpNotWorksDayLst().addAll(days);
-                adapter.updateList(days);
-            });
+                requireActivity().runOnUiThread(() -> {
+                    selectedEmployee.getEmpNotWorksDayLst().clear();
+                    selectedEmployee.getEmpNotWorksDayLst().addAll(days);
+                    selectedEmployee.setTotalNotWorksDay(calculateTotalNotWorksDay(days));
+                    if(adapter != null) {
+                        adapter.updateList(new ArrayList<>(days));
+                    }
+                });
+            } catch(Exception e) {
+                Log.e("LOAD_DATA", "Hata: ", e);
+            }
         });
     }
 
+    private int calculateTotalNotWorksDay(ArrayList<NotWorksDay> notWorksDays) {
+        int total = 0;
+        for (NotWorksDay t : notWorksDays) {
+            total += t.getDays();
+        }
+        return total;
+    }
+
     private void addNotWorksDay() {
+        bnd.addNotWorksDayBut.setEnabled(false);
         String daysStr = bnd.notWorksDayAmountEditTxt.getText().toString().trim();
         String reason = bnd.notWorksDayReasonEditTxt.getText().toString().trim();
 
         if(daysStr.isEmpty()) {
             Toast.makeText(requireContext(), "Gün sayısı giriniz!", Toast.LENGTH_SHORT).show();
+            bnd.addNotWorksDayBut.setEnabled(true);
             return;
         }
-
         Executors.newSingleThreadExecutor().execute(() -> {
-            SQLiteDatabase db = null;
             try {
                 int days = Integer.parseInt(daysStr);
                 String date = DateUtils.getCurrentDate();
 
                 DBHelper dbHelper = Singleton.getInstance().getDataBase();
-                db = dbHelper.getWritableDatabase();
-                db.beginTransaction();
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-                // NotWorksDay ekleme
-                ContentValues nwValues = new ContentValues();
-                nwValues.put("days", days);
-                nwValues.put("date", date);
-                nwValues.put("reason", reason);
-                nwValues.put("employeeId", selectedEmployee.getDbId());
-                long id = db.insert(DBHelper.TABLE_NOT_WORKS_DAYS, null, nwValues);
+                try {
+                    db.beginTransaction();
 
-                if(id == -1) throw new Exception("NotWorksDay eklenemedi");
+                    // NotWorksDay ekleme
+                    long id = dbHelper.addNotWorksDay(days, date, reason, selectedEmployee.getDbId());
+                    if(id == -1) throw new Exception("NotWorksDay eklenemedi");
 
-                // Employee totalNotWorksDay güncelleme
-                int newTotal = selectedEmployee.getTotalNotWorksDay() + days;
-                ContentValues empValues = new ContentValues();
-                empValues.put("totalNotWorksDay", newTotal);
-                db.update(DBHelper.TABLE_EMPLOYEES, empValues, "id=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
+                    // Employee güncelleme
+                    ContentValues empValues = new ContentValues();
+                    empValues.put("totalNotWorksDay", selectedEmployee.getTotalNotWorksDay() + days);
+                    db.update(DBHelper.TABLE_EMPLOYEES, empValues, "id=?",
+                            new String[]{String.valueOf(selectedEmployee.getDbId())});
 
-                db.setTransactionSuccessful();
+                    db.setTransactionSuccessful();
 
-                requireActivity().runOnUiThread(() -> {
+                    // UI Güncelleme
                     NotWorksDay newDay = new NotWorksDay(days, date, reason);
                     newDay.setId((int) id);
-                    selectedEmployee.getEmpNotWorksDayLst().add(0, newDay);
-                    selectedEmployee.setTotalNotWorksDay(newTotal);
-                    adapter.addPayment(newDay);
-                    bnd.notWorksDayAmountEditTxt.setText("");
-                    bnd.notWorksDayReasonEditTxt.setText("");
-                });
+
+                    requireActivity().runOnUiThread(() -> {
+                        selectedEmployee.getEmpNotWorksDayLst().add(0, newDay);
+                        selectedEmployee.setTotalNotWorksDay(selectedEmployee.getTotalNotWorksDay() + days);
+
+                        if(adapter != null) {
+                            adapter.addNotWorkDays(newDay);
+                            bnd.notWorksDayRecView.smoothScrollToPosition(0);
+                        }
+
+                        bnd.notWorksDayAmountEditTxt.setText("1");
+                        bnd.notWorksDayReasonEditTxt.setText("");
+                    });
+
+                } finally {
+                    db.endTransaction();
+                }
 
             } catch(Exception e) {
                 Log.e("ADD_NWD", "Hata: ", e);
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(requireContext(), "Hata: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                );
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(requireContext(), "Hata: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
             } finally {
-                if(db != null) {
-                    db.endTransaction();
-                    db.close();
-                }
+                requireActivity().runOnUiThread(() -> {
+                    loadData();
+                    bnd.addNotWorksDayBut.setEnabled(true);
+                });
             }
         });
     }
@@ -159,34 +182,64 @@ public class NotWorksDayProcces extends Fragment {
                 db = dbHelper.getWritableDatabase();
                 db.beginTransaction();
 
-                // NotWorksDay silme
-                int deletedRows = db.delete(DBHelper.TABLE_NOT_WORKS_DAYS, "id=?", new String[]{String.valueOf(day.getId())});
+                // Silinecek ID'nin var olup olmadığını kontrol et
+                Cursor cursor = db.rawQuery("SELECT id FROM " + DBHelper.TABLE_NOT_WORKS_DAYS + " WHERE id=?", new String[]{String.valueOf(day.getId())});
+                if (cursor.getCount() == 0) {
+                    cursor.close();
+                    throw new Exception("Silinecek kayıt bulunamadı, ID: " + day.getId());
+                }
+                cursor.close();
+
+                // Silme işlemi
+                int deletedRows = db.delete(
+                        DBHelper.TABLE_NOT_WORKS_DAYS,
+                        "id=?",
+                        new String[]{String.valueOf(day.getId())}
+                );
+
                 if(deletedRows == 0) throw new Exception("Silme işlemi başarısız");
 
-                // Employee totalNotWorksDay güncelleme
+                // Çalışan güncelleme
                 int newTotal = selectedEmployee.getTotalNotWorksDay() - day.getDays();
                 ContentValues empValues = new ContentValues();
                 empValues.put("totalNotWorksDay", newTotal);
-                db.update(DBHelper.TABLE_EMPLOYEES, empValues, "id=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
+                db.update(
+                        DBHelper.TABLE_EMPLOYEES,
+                        empValues,
+                        "id=?",
+                        new String[]{String.valueOf(selectedEmployee.getDbId())}
+                );
 
                 db.setTransactionSuccessful();
 
                 requireActivity().runOnUiThread(() -> {
-                    selectedEmployee.setTotalNotWorksDay(newTotal);
                     selectedEmployee.getEmpNotWorksDayLst().remove(position);
-                    adapter.updateList(selectedEmployee.getEmpNotWorksDayLst());
+                    if(adapter != null) {
+                        adapter.notifyItemRemoved(position);
+                        adapter.notifyItemRangeChanged(position, selectedEmployee.getEmpNotWorksDayLst().size());
+                    }
+                    selectedEmployee.setTotalNotWorksDay(newTotal);
+                    Toast.makeText(requireContext(), "Silindi", Toast.LENGTH_SHORT).show();
                 });
 
             } catch(Exception e) {
                 Log.e("DELETE_NWD", "Hata: ", e);
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(), "Silinemedi: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
             } finally {
                 if(db != null) {
-                    db.endTransaction();
-                    db.close();
+                    try {
+                        db.endTransaction();
+                    } catch(Exception e) {
+                        Log.e("DELETE_NWD", "Transaction kapatma hatası: ", e);
+                    }
                 }
+                loadData();
             }
         });
     }
+
 
     private void showCleanAllDialog() {
         new AlertDialog.Builder(requireContext())
@@ -205,29 +258,51 @@ public class NotWorksDayProcces extends Fragment {
                 db = dbHelper.getWritableDatabase();
                 db.beginTransaction();
 
-                // Tüm NotWorksDay kayıtlarını sil
-                db.delete(DBHelper.TABLE_NOT_WORKS_DAYS, "employeeId=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
+                // 1. Tüm kayıtları sil
+                db.delete(
+                        DBHelper.TABLE_NOT_WORKS_DAYS,
+                        "employeeId=?",
+                        new String[]{String.valueOf(selectedEmployee.getDbId())}
+                );
 
-                // Employee totalNotWorksDay sıfırla
+                // 2. Total değerini sıfırla
                 ContentValues empValues = new ContentValues();
                 empValues.put("totalNotWorksDay", 0);
-                db.update(DBHelper.TABLE_EMPLOYEES, empValues, "id=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
+                db.update(
+                        DBHelper.TABLE_EMPLOYEES,
+                        empValues,
+                        "id=?",
+                        new String[]{String.valueOf(selectedEmployee.getDbId())}
+                );
 
                 db.setTransactionSuccessful();
 
+                // 3. UI Güncellemelerini ana thread'de yap
                 requireActivity().runOnUiThread(() -> {
-                    selectedEmployee.setTotalNotWorksDay(0);
+                    // Adapter'ı temizle
                     selectedEmployee.getEmpNotWorksDayLst().clear();
-                    adapter.updateList(new ArrayList<>());
+                    selectedEmployee.setTotalNotWorksDay(0);
+
+                    if(adapter != null) {
+                        adapter.updateList(new ArrayList<>());
+                    }
+                    Toast.makeText(requireContext(), "Tüm kayıtlar silindi", Toast.LENGTH_SHORT).show();
                 });
 
             } catch(Exception e) {
                 Log.e("CLEAN_NWD", "Hata: ", e);
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(), "Silinemedi: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
             } finally {
                 if(db != null) {
-                    db.endTransaction();
-                    db.close();
+                    try {
+                        db.endTransaction();
+                    } catch(Exception e) {
+                        Log.e("CLEAN_NWD", "Transaction kapatma hatası: ", e);
+                    }
                 }
+                loadData();
             }
         });
     }

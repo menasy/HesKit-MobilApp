@@ -117,7 +117,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(
                 TABLE_EMPLOYEES,
-                new String[]{"id", "name", "surName", "worksDay", "totalMoney", "totalTransfer", "dateIn"},
+                new String[]{"id", "name", "surName", "worksDay", "totalMoney", "totalTransfer", "totalNotWorksDay", "dateIn"},
                 "id=?",
                 new String[]{String.valueOf(employeeId)},
                 null, null, null
@@ -131,9 +131,9 @@ public class DBHelper extends SQLiteOpenHelper {
             employee.setWorksDay(cursor.getInt(3));
             employee.setTotalMoney(cursor.getInt(4));
             employee.setTotalTransfer(cursor.getInt(5));
+            employee.setTotalNotWorksDay(cursor.getInt(6)); // Yeni eklenen sütun
 
-            // Tarih işlemini düzelt
-            String dateString = cursor.getString(6);
+            String dateString = cursor.getString(7);
             employee.setDateIn(DateUtils.parseDateArray(dateString));
 
             cursor.close();
@@ -305,7 +305,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put("amount", amount);
         values.put("transferDate", transferDate);
         values.put("sentToPerson", sentToPerson);
-        values.put("employeeId", employeeId); // Yeni eklenen sütun
+        values.put("employeeId", employeeId);
 
         return db.insert(TABLE_TRANSFERS, null, values);
     }
@@ -320,20 +320,22 @@ public class DBHelper extends SQLiteOpenHelper {
         return db.insert(TABLE_NOT_WORKS_DAYS, null, values);
     }
 
+
     public ArrayList<NotWorksDay> getNotWorksDaysForEmployee(long employeeId) {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<NotWorksDay> days = new ArrayList<>();
+        Cursor cursor = null;
 
-        Cursor cursor = db.query(
-                TABLE_NOT_WORKS_DAYS,
-                new String[]{"id", "days", "date", "reason"},
-                "employeeId=?",
-                new String[]{String.valueOf(employeeId)},
-                null, null,
-                "id DESC"
-        );
+        try {
+            cursor = db.query(
+                    TABLE_NOT_WORKS_DAYS,
+                    new String[]{"id", "days", "date", "reason"},
+                    "employeeId=?",
+                    new String[]{String.valueOf(employeeId)},
+                    null, null,
+                    "id DESC"
+            );
 
-        if (cursor != null) {
             while (cursor.moveToNext()) {
                 int id = cursor.getInt(0);
                 int daysCount = cursor.getInt(1);
@@ -344,7 +346,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 notWorksDay.setId(id);
                 days.add(notWorksDay);
             }
-            cursor.close();
+        } finally {
+            if(cursor != null) cursor.close();
         }
         return days;
     }

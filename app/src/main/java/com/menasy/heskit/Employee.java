@@ -1,6 +1,8 @@
 package com.menasy.heskit;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 import android.widget.TextView;
@@ -8,6 +10,7 @@ import android.widget.TextView;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.concurrent.Executors;
 
 public class Employee implements Serializable
 {
@@ -79,16 +82,16 @@ public class Employee implements Serializable
 
         // İki tarih arasındaki farkı gün cinsinden hesapla
         long differenceInMillis = endDate.getTimeInMillis() - startDate.getTimeInMillis();
-        int totalDays = (int) (differenceInMillis / (1000 * 60 * 60 * 24)); // Milisaniyeden güne dönüştür
+        int totalDays = (int) (differenceInMillis / (1000 * 60 * 60 * 24));
 
         return totalDays;
     }
     public void displayDateIn(TextView textView) {
-        String formattedDate = dateIn[0] + "/" + dateIn[1] + "/" + dateIn[2]; // Gün/Ay/Yıl formatında
+        String formattedDate = dateIn[0] + "/" + dateIn[1] + "/" + dateIn[2];
         textView.setText("Başlangıç Tarihi: " + formattedDate);
     }
     public String getDateInStr() {
-        String formattedDate = dateIn[0] + "/" + dateIn[1] + "/" + dateIn[2]; // Gün/Ay/Yıl formatında
+        String formattedDate = dateIn[0] + "/" + dateIn[1] + "/" + dateIn[2];
         return formattedDate;
     }
 
@@ -235,7 +238,17 @@ public class Employee implements Serializable
         return totalNotWorksDay;
     }
 
-    public void setTotalNotWorksDay(int totalNotWorksDay) {
-        this.totalNotWorksDay = totalNotWorksDay;
+    public void setTotalNotWorksDay(int total) {
+        this.totalNotWorksDay = total;
+        // Veritabanını da güncelle
+        Executors.newSingleThreadExecutor().execute(() -> {
+            DBHelper dbHelper = Singleton.getInstance().getDataBase();
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put("totalNotWorksDay", total);
+            db.update(DBHelper.TABLE_EMPLOYEES, values, "id=?",
+                    new String[]{String.valueOf(this.dbId)});
+            db.close();
+        });
     }
 }

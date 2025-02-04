@@ -14,13 +14,11 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="26dp"
+        android:layout_marginTop="22dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="41dp"
         android:background="@drawable/bg_stats_card"
         android:orientation="vertical"
         android:padding="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -52,11 +50,11 @@
             android:background="@drawable/bg_stat_item"
             android:drawablePadding="8dp"
             android:fontFamily="sans-serif-medium"
-            android:gravity="center_vertical"
-            android:letterSpacing="0.04"
+            android:gravity="center"
+            android:letterSpacing="0.03"
             android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
-            android:text="Toplam Havale: 0₺"
+            android:text="Toplam Havale\n0₺"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -70,11 +68,11 @@
             android:background="@drawable/bg_stat_item"
             android:drawablePadding="8dp"
             android:fontFamily="sans-serif-medium"
-            android:gravity="center_vertical"
-            android:letterSpacing="0.04"
+            android:gravity="center"
+            android:letterSpacing="0.03"
             android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
-            android:text="Toplam Harçlık: 0₺"
+            android:text="Toplam Harçlık\n0₺"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -88,11 +86,11 @@
             android:background="@drawable/bg_stat_item"
             android:drawablePadding="8dp"
             android:fontFamily="sans-serif-medium"
-            android:gravity="center_vertical"
-            android:letterSpacing="0.04"
+            android:gravity="center"
+            android:letterSpacing="0.03"
             android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
-            android:text="Toplam Para: 0₺"
+            android:text="Toplam Para\n0₺"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -105,11 +103,11 @@
             android:background="@drawable/bg_stat_item"
             android:drawablePadding="8dp"
             android:fontFamily="sans-serif-medium"
-            android:gravity="center_vertical"
-            android:letterSpacing="0.04"
+            android:gravity="center"
+            android:letterSpacing="0.03"
             android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
-            android:text="Toplam Çalışan: 0"
+            android:text="Toplam Çalışan\n0"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -120,10 +118,10 @@
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="151dp"
+        android:layout_marginTop="16dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
@@ -133,9 +131,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
             android:backgroundTint="@color/material_on_surface_emphasis_high_type"
             android:text="Çalışanlar"
-            android:layout_marginBottom="8dp"
             android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -144,7 +142,7 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
+        android:layout_marginBottom="16dp"
         android:text="Powered by menasy"
         android:textColor="@color/primary_dark"
         android:textSize="10sp"
@@ -152,7 +150,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:layout_constraintVertical_bias="1.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

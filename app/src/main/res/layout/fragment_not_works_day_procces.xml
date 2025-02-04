@@ -104,6 +104,7 @@
             android:background="@drawable/bg_stat_item"
             android:fontFamily="sans-serif-medium"
             android:hint="Gün Sayısı"
+            android:text="1"
             android:inputType="numberDecimal"
             android:padding="16dp"
             android:textAlignment="center"

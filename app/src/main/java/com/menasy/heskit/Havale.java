@@ -120,7 +120,6 @@ public class Havale extends Fragment {
 
             // UI güncellemelerini ana thread'de yap
             requireActivity().runOnUiThread(() -> {
-                // Verileri yeniden yükle ve adapter'ı güncelle
                 loadTransfersFromDB();
                 havaleAdapter.updateList(selectedEmployee.getEmpTransferLst());
 

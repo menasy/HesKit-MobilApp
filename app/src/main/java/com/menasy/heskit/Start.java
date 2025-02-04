@@ -1,10 +1,15 @@
 package com.menasy.heskit;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
@@ -47,6 +52,13 @@ public class Start extends Fragment {
         updateTotalTransfer();
     }
 
+    private void setFormattedText(TextView textView, String label, String value) {
+        SpannableString spannable = new SpannableString(label + "\n" + value);
+        int start = label.length() + 1; // "\n" sonrası başlıyor
+        spannable.setSpan(new ForegroundColorSpan(Color.GREEN), start, spannable.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        textView.setText(spannable);
+    }
+
     private void updateTotalPayment() {
         new Thread(() -> {
             long total = Singleton.getInstance().getDataBase().getTotalPayments();
@@ -54,8 +66,8 @@ public class Start extends Fragment {
                     + Singleton.getInstance().getDataBase().getTotalPayments();
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    binding.totalPaymentTxtView.setText("Toplam Harçlık: " + total + "₺");
-                    binding.totalAllMoney.setText("Toplam Para: " + totalAll + "₺");
+                    setFormattedText(binding.totalPaymentTxtView, "Toplam Harçlık", total + "₺");
+                    setFormattedText(binding.totalAllMoney, "Toplam Para", totalAll + "₺");
                 });
             }
         }).start();
@@ -66,7 +78,7 @@ public class Start extends Fragment {
             int count = Singleton.getInstance().getDataBase().getEmployeeCount();
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    binding.totalEmpStartTxt.setText("Toplam Çalışan: " + count);
+                    setFormattedText(binding.totalEmpStartTxt, "Toplam Çalışan", count + "");
                 });
             }
         }).start();
@@ -81,8 +93,9 @@ public class Start extends Fragment {
                 if (getActivity() != null && isAdded()) {
                     getActivity().runOnUiThread(() -> {
                         if (binding != null) {
-                            binding.totalTransferTxtView.setText("Toplam Havale: " + total + "₺");
-                            binding.totalAllMoney.setText("Toplam Para: " + totalAll + "₺");
+                            setFormattedText(binding.totalTransferTxtView, "Toplam Havale", total + "₺");
+                            setFormattedText(binding.totalAllMoney, "Toplam Para", totalAll + "₺");
+
                         }
                     });
                 }

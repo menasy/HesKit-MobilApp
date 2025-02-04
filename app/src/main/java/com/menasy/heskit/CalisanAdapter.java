@@ -43,15 +43,20 @@ public class CalisanAdapter extends RecyclerView.Adapter<CalisanAdapter.CalisanH
     @Override
     public void onBindViewHolder(@NonNull CalisanHolder holder, int position) {
         Employee emp = adapterEmpList.get(position);
-        String text = emp.getNameAndSurname() + "    " + emp.getTotalTransferAndPayment() + "₺";
+        String value = emp.getTotalTransferAndPayment() + "₺";
+        String text = emp.getNameAndSurname() + "    " + value;
         SpannableString spannable = new SpannableString(text);
-        spannable.setSpan(
-                new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.currency_green)),
-                text.lastIndexOf("-") + 2,
-                text.length(),
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        );
-        holder.binding.calisanRecText.setText(text);
+
+        int start = text.indexOf(value); // Değerin başladığı yeri bul
+        if (start != -1) {
+            spannable.setSpan(
+                    new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.currency_green)),
+                    start,
+                    text.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        }
+        holder.binding.calisanRecText.setText(spannable);
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onEmployeeClick(emp);
