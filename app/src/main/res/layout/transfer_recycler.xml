@@ -7,14 +7,13 @@
     android:layout_margin="8dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp"
-    app:cardBackgroundColor="@color/background_blue">
+    app:cardBackgroundColor="@color/fragment_backround_color">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_stat_item_emp"
         android:orientation="vertical"
-
         android:padding="1dp">
 
         <TextView

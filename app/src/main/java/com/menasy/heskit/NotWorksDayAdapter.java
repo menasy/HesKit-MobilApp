@@ -58,8 +58,7 @@ public class NotWorksDayAdapter extends RecyclerView.Adapter<NotWorksDayAdapter.
     public int getItemCount() { return days.size(); }
 
     public void updateList(List<NotWorksDay> newList) {
-        this.days.clear();
-        this.days.addAll(newList);
+        this.days = new ArrayList<>(newList);
         notifyDataSetChanged();
     }
 

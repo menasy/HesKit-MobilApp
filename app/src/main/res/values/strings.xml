@@ -2,4 +2,9 @@
     <string name="app_name">HesKit</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="selected_count">%d Seçili</string>
+    <string-array name="selection_actions">
+        <item>Sil</item>
+        <item>Dışa Aktar</item>
+    </string-array>
 </resources>

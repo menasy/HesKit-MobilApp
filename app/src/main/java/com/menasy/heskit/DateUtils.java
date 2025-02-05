@@ -29,7 +29,8 @@ public class DateUtils {
 
     public static int[] parseDateArray(String dateStr) {
         try {
-            String[] parts = dateStr.split("/");
+            // Hem '/' hem de '.' karakterlerini ayırıcı olarak kullanmak için regex kullanıyoruz
+            String[] parts = dateStr.split("[/\\.]+");
             return new int[]{
                     Integer.parseInt(parts[0].trim()),
                     Integer.parseInt(parts[1].trim()),

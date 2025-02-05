@@ -1,136 +1,247 @@
-package com.menasy.heskit;
+        package com.menasy.heskit;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.SearchView;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import com.menasy.heskit.databinding.FragmentCalisanlarBinding;
-import java.util.ArrayList;
+        import android.app.AlertDialog;
+        import android.database.Cursor;
+        import android.database.sqlite.SQLiteDatabase;
+        import android.os.Bundle;
+        import android.text.InputType;
+        import android.util.Log;
+        import android.view.LayoutInflater;
+        import android.view.View;
+        import android.view.ViewGroup;
+        import android.widget.EditText;
+        import android.widget.SearchView;
+        import androidx.annotation.NonNull;
+        import androidx.annotation.Nullable;
+        import androidx.fragment.app.Fragment;
+        import androidx.recyclerview.widget.LinearLayoutManager;
+        import com.menasy.heskit.databinding.FragmentCalisanlarBinding;
 
-public class Calisanlar extends Fragment {
+        import java.text.SimpleDateFormat;
+        import java.util.ArrayList;
+        import java.util.Date;
+        import java.util.Locale;
 
-    @NonNull
-    FragmentCalisanlarBinding bnd;
-    static public ArrayList<Employee> empList = new ArrayList<>();
-    static CalisanAdapter adapter;
-    private static Calisanlar instance;
-    private static ArrayList<Employee> originalEmpList = new ArrayList<>();//searchview için
+        public class Calisanlar extends Fragment {
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        instance = this;
-    }
+            @NonNull
+            FragmentCalisanlarBinding bnd;
+            static CalisanAdapter adapter;
+            static public ArrayList<Employee> empList = new ArrayList<>();
+            private static ArrayList<Employee> originalEmpList = new ArrayList<>();
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        bnd = FragmentCalisanlarBinding.inflate(inflater, container, false);
-        View view = bnd.getRoot();
-
-        bnd.fragmentCalisanRecView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new CalisanAdapter(empList);
-        bnd.fragmentCalisanRecView.setAdapter(adapter);
-
-        adapter.setOnEmployeeClickListener(employee -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToEmpProcces(employee);
-            }
-        });
-
-        setupClickListeners();
-        loadEmployeeDataFromDB();
-        setupSearchView();
-        return view;
-    }
-
-    private void setupClickListeners() {
-        bnd.addEmployee.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToAddEmp();
-            }
-        });
-    }
-    private void setupSearchView() {
-        bnd.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
+            public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+                bnd = FragmentCalisanlarBinding.inflate(inflater, container, false);
+                if (adapter == null) {
+                    adapter = new CalisanAdapter(new ArrayList<>());
+                }
+                if (empList == null) {
+                    empList = new ArrayList<>();
+                }
+
+                initializeComponents();
+                setupListeners();
+
+                bnd.bottomActionButton.setVisibility(View.GONE);
+                bnd.selectAllEmp.setVisibility(View.GONE);
+                bnd.addEmployee.setVisibility(View.VISIBLE);
+                loadEmployeeDataFromDB();
+                adapter.updateList(empList);
+                return bnd.getRoot();
+            }
+            public void onResume() {
+                super.onResume();
+                loadEmployeeDataFromDB();
+                adapter.updateList(empList);
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
-                filterList(newText.toLowerCase());
-                return true;
+            public void onPause() {
+                super.onPause();
+                if(adapter != null) adapter.exitSelectionMode();
             }
-        });
-    }
-
-    private void filterList(String text) {
-        ArrayList<Employee> filteredList = new ArrayList<>();
-        for(Employee employee : originalEmpList) {
-            String fullName = employee.getNameAndSurname().toLowerCase();
-            if(fullName.contains(text)) {
-                filteredList.add(employee);
+            @Override
+            public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+                super.onViewCreated(view, savedInstanceState);
+                loadEmployeeDataFromDB();
+                adapter.updateList(empList);
             }
-        }
-        adapter.updateList(filteredList);
-    }
-    public static void loadEmployeeDataFromDB() {
-        DBHelper dbHelper = Singleton.getInstance().getDataBase();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + DBHelper.TABLE_EMPLOYEES, null);
+            private void initializeComponents() {
+                bnd.fragmentCalisanRecView.setLayoutManager(new LinearLayoutManager(getContext()));
+                adapter = new CalisanAdapter(empList);
+                bnd.fragmentCalisanRecView.setAdapter(adapter);
 
-        empList.clear();
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                int idColumnIndex = cursor.getColumnIndex("id");
-                int nameColumnIndex = cursor.getColumnIndex("name");
-                int surNameColumnIndex = cursor.getColumnIndex("surName");
-                int totalMoneyColumnIndex = cursor.getColumnIndex("totalMoney");
-                int dateInColumnIndex = cursor.getColumnIndex("dateIn");
-                int totalTransferIndex = cursor.getColumnIndex("totalTransfer");
+                adapter.setOnSelectionListener(selectedCount -> {
+                    boolean hasSelection = selectedCount > 0;
+                    bnd.bottomActionButton.setVisibility(hasSelection ? View.VISIBLE : View.GONE);
+                    bnd.selectAllEmp.setVisibility(hasSelection ? View.VISIBLE : View.GONE);
+                    bnd.addEmployee.setVisibility(hasSelection ? View.GONE : View.VISIBLE);
+                    bnd.bottomActionButton.setText(selectedCount + " Mesai Ekle");
+                    updateSelectAllButtonText();
+                });
+            }
 
-                if (idColumnIndex != -1 && nameColumnIndex != -1 && surNameColumnIndex != -1
-                        && totalMoneyColumnIndex != -1 && dateInColumnIndex != -1 && totalTransferIndex != -1) {
+            private void setupListeners() {
+                // Alt buton click listener
+                bnd.bottomActionButton.setOnClickListener(v -> showNumberInputDialog());
+                bnd.selectAllEmp.setOnClickListener(v -> toggleSelectAll());
+                adapter.setOnEmployeeClickListener(employee -> {
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).navigateToEmpProcces(employee);
+                    }
+                });
 
-                    long dbId = cursor.getLong(idColumnIndex);
-                    String name = cursor.getString(nameColumnIndex);
-                    String surName = cursor.getString(surNameColumnIndex);
-                    long totalMoney = cursor.getLong(totalMoneyColumnIndex);
-                    String dateInStr = cursor.getString(dateInColumnIndex);
-                    long totalTransfer = cursor.getLong(totalTransferIndex);
+                bnd.addEmployee.setOnClickListener(v -> {
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).navigateToAddEmp();
+                    }
+                });
 
-                    int[] dateIn = processDateIn(dateInStr);
-                    Employee emp = new Employee(name, surName, dateIn);
-                    emp.setDbId(dbId); // ID'yi set et
-                    emp.setTotalMoney(totalMoney);
-                    emp.setTotalTransfer(totalTransfer);
-                    ArrayList<EmployeePayment> payments = dbHelper.getPaymentsForEmployee(dbId);
-                    emp.setEmpPaymentLst(payments);
-                    empList.add(emp);
+                setupSearchView();
+            }
+
+            private void toggleSelectAll() {
+                if(adapter.isAllSelected()) {
+                    adapter.deselectAll();
+                } else {
+                    adapter.selectAll();
+                }
+            }
+
+            private void updateSelectAllButtonText() {
+                if(adapter == null || bnd.selectAllEmp == null) return;
+                boolean allSelected = adapter.isAllSelected() && adapter.getItemCount() > 0;
+                bnd.selectAllEmp.setText(allSelected ? "Tümünü Bırak" : "Tümünü Seç");
+            }
+            private void showNumberInputDialog() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                builder.setTitle("                    Mesai Saati");
+
+                // Kullanıcıdan sayı almak için EditText
+                final EditText input = new EditText(requireContext());
+                input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                input.setHint("                            Saat giriniz");
+                builder.setView(input);
+
+                builder.setPositiveButton("Tamam       ", (dialog, which) -> {
+                    String enteredText = input.getText().toString().trim();
+                    if (!enteredText.isEmpty()) {
+                        int enteredNumber = Integer.parseInt(enteredText);
+                        processEnteredNumber(enteredNumber);
+                    }
+                });
+
+                builder.setNegativeButton("İptal                   ", (dialog, which) -> dialog.cancel());
+
+                builder.show();
+            }
+
+            private void processEnteredNumber(int number) {
+                ArrayList<Employee> selectedEmployees = adapter.getSelectedEmployees();
+                String currentDate = DateUtils.getCurrentDate();
+
+                for (Employee emp : selectedEmployees) {
+                    OverDay overDay = new OverDay(currentDate, number);
+                    emp.getEmpOverDayLst().add(overDay);
+
+                    // Veritabanına kaydet
+                    DBHelper dbHelper = Singleton.getInstance().getDataBase();
+                    dbHelper.addOverDay(currentDate, number, emp.getDbId());
 
                 }
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
-        originalEmpList.clear();
-        originalEmpList.addAll(empList);
-    }
 
-    private static int[] processDateIn(String dateInStr) {
-        String[] dateParts = dateInStr.split("/");
-        int[] dateIn = new int[dateParts.length];
-        for (int i = 0; i < dateParts.length; i++) {
-            dateIn[i] = Integer.parseInt(dateParts[i]);
-        }
-        return dateIn;
-    }
+                adapter.exitSelectionMode();
+            }
 
-}
+            private void deleteSelectedEmployees() {
+                ArrayList<Employee> selected = adapter.getSelectedEmployees();
+                // Veritabanı silme işlemleri buraya eklenecek
+                empList.removeAll(selected);
+                originalEmpList.removeAll(selected);
+                adapter.updateList(empList);
+                adapter.exitSelectionMode();
+            }
+
+            private void setupSearchView() {
+                bnd.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        filterList(newText.toLowerCase());
+                        return true;
+                    }
+                });
+            }
+
+            private void filterList(String text) {
+                ArrayList<Employee> filteredList = new ArrayList<>();
+                for(Employee employee : originalEmpList) {
+                    if(employee.getNameAndSurname().toLowerCase().contains(text)) {
+                        filteredList.add(employee);
+                    }
+                }
+                adapter.updateList(filteredList);
+            }
+
+            public static void loadEmployeeDataFromDB() {
+                DBHelper dbHelper = Singleton.getInstance().getDataBase();
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                Cursor cursor = db.rawQuery("SELECT * FROM " + DBHelper.TABLE_EMPLOYEES, null);
+
+                empList.clear();
+                originalEmpList.clear();
+                if (cursor != null && cursor.moveToFirst()) {
+                    do {
+                        int idColumnIndex = cursor.getColumnIndex("id");
+                        int nameColumnIndex = cursor.getColumnIndex("name");
+                        int surNameColumnIndex = cursor.getColumnIndex("surName");
+                        int totalMoneyColumnIndex = cursor.getColumnIndex("totalMoney");
+                        int dateInColumnIndex = cursor.getColumnIndex("dateIn");
+                        int totalTransferIndex = cursor.getColumnIndex("totalTransfer");
+
+                        if (idColumnIndex != -1 && nameColumnIndex != -1 && surNameColumnIndex != -1
+                                && totalMoneyColumnIndex != -1 && dateInColumnIndex != -1 && totalTransferIndex != -1) {
+
+                            long dbId = cursor.getLong(idColumnIndex);
+                            String name = cursor.getString(nameColumnIndex);
+                            String surName = cursor.getString(surNameColumnIndex);
+                            long totalMoney = cursor.getLong(totalMoneyColumnIndex);
+                            String dateInStr = cursor.getString(dateInColumnIndex);
+                            long totalTransfer = cursor.getLong(totalTransferIndex);
+
+                            int[] dateIn = processDateIn(dateInStr);
+                            Employee emp = new Employee(name, surName, dateIn);
+                            emp.setDbId(dbId); // ID'yi set et
+                            emp.setTotalMoney(totalMoney);
+                            emp.setTotalTransfer(totalTransfer);
+                            ArrayList<EmployeePayment> payments = dbHelper.getPaymentsForEmployee(dbId);
+                            emp.setEmpPaymentLst(payments);
+                            empList.add(emp);
+
+                        }
+                    } while (cursor.moveToNext());
+                    cursor.close();
+                }
+                originalEmpList.addAll(empList);
+            }
+
+            private static int[] processDateIn(String dateInStr) {
+                try {
+                    // Hem '/' hem de '.' karakterlerini ayırıcı olarak kullan
+                    String[] dateParts = dateInStr.split("[/\\.]+");
+                    int[] dateIn = new int[3];
+                    for (int i = 0; i < 3; i++) {
+                        dateIn[i] = Integer.parseInt(dateParts[i].trim());
+                    }
+                    return dateIn;
+                } catch (Exception e) {
+                    Log.e("DateUtils", "Geçersiz tarih formatı: " + dateInStr);
+                    return new int[]{1, 1, 2023}; // Varsayılan değer
+                }
+            }
+        }

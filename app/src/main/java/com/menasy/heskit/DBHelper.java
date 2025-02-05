@@ -14,11 +14,13 @@ import java.util.Date;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "employee.db";
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 4;
 
     public static final String TABLE_EMPLOYEES = "employees";
     public static final String TABLE_PAYMENTS = "payments";
     public static final String TABLE_TRANSFERS = "transfers";
+    public static final String TABLE_OVER_DAYS = "over_days";
+
     public static final String TABLE_NOT_WORKS_DAYS = "not_works_days";
 
 
@@ -64,6 +66,15 @@ public class DBHelper extends SQLiteOpenHelper {
                 "employeeId INTEGER, " +
                 "FOREIGN KEY (employeeId) REFERENCES " + TABLE_EMPLOYEES + "(id) ON DELETE CASCADE)";
 
+        String createOverDaysTable = "CREATE TABLE " + TABLE_OVER_DAYS + " (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "date TEXT, " +
+                "daysAmount INTEGER, " +
+                "employeeId INTEGER, " +
+                "FOREIGN KEY (employeeId) REFERENCES " + TABLE_EMPLOYEES + "(id) ON DELETE CASCADE)";
+
+        db.execSQL(createOverDaysTable);
+
         db.execSQL(createEmployeeTable);
         db.execSQL(createPaymentsTable);
         db.execSQL(createTransfersTable);
@@ -81,6 +92,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EMPLOYEES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PAYMENTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANSFERS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_OVER_DAYS);
         onCreate(db);
     }
 
@@ -356,5 +368,46 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(TABLE_NOT_WORKS_DAYS, "id=?", new String[]{String.valueOf(dayId)});
     }
+
+    public long addOverDay(String date, int days, long employeeId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("date", date);
+        values.put("daysAmount", days);
+        values.put("employeeId", employeeId);
+
+        long result = db.insert(TABLE_OVER_DAYS, null, values);
+        db.close();
+        return result;
+    }
+    public ArrayList<OverDay> getOverDaysForEmployee(long employeeId) {
+        ArrayList<OverDay> overDays = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_OVER_DAYS,
+                new String[]{"id", "date", "daysAmount"},
+                "employeeId=?",
+                new String[]{String.valueOf(employeeId)},
+                null, null, "date DESC"); // Tarihe göre ters sıralama
+
+        if(cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(0);
+                String date = cursor.getString(1);
+                int days = cursor.getInt(2);
+
+                OverDay overDay = new OverDay(date, days);
+                overDay.setId(id);
+                overDays.add(overDay);
+            } while(cursor.moveToNext());
+        }
+        cursor.close();
+        return overDays;
+    }
+    public int deleteOverDay(int overDayId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete(TABLE_OVER_DAYS, "id=?", new String[]{String.valueOf(overDayId)});
+    }
+
 }
 

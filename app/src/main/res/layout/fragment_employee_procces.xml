@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2196F3"
+    android:background="@color/primary_dark"
     tools:context=".EmployeeProcces">
 
     <!-- TODO: Update blank fragment layout -->
@@ -176,6 +176,16 @@
             android:layout_marginTop="16dp"
             android:backgroundTint="@color/material_on_surface_emphasis_high_type"
             android:text="Gün"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+        <Button
+            android:id="@+id/empGetOverDayFragment"
+            android:layout_width="164dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/material_on_surface_emphasis_high_type"
+            android:text="Mesai"
             android:textSize="15sp"
             android:textStyle="bold" />
 

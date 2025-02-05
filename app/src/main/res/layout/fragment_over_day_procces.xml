@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:name=".OverDayProcces"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fragment_backround_color"
+    android:exported="false"
+    tools:context=".OverDayProcces">
+
+    <LinearLayout
+        android:id="@+id/linearLayoutOv3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutOv2">
+
+        <Button
+            android:id="@+id/addOver"
+            android:layout_width="155dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/material_on_surface_emphasis_high_type"
+            android:text="Mesai Ekle"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/cleanAllOverDay"
+            android:layout_width="155dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/material_on_surface_emphasis_high_type"
+            android:text="Hepsini Temizle"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutOv2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="22dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutOv3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutOv1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/overDayRecyclerView"
+            style="@style/AppRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/fragment_backround_color" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutOv1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="26dp"
+        android:layout_marginBottom="33dp"
+        android:background="@drawable/bg_stats_card"
+        android:orientation="vertical"
+        android:padding="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutOv2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Başlık -->
+        <TextView
+            android:id="@+id/overDayTitleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:background="#AA000000"
+            android:fontFamily="sans-serif-medium"
+            android:padding="12dp"
+            android:shadowColor="#80000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:text="Mesayi İşlemleri"
+            android:textAlignment="center"
+            android:textColor="#FFEB3B"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

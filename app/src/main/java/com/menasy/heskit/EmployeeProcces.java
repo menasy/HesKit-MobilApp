@@ -98,11 +98,23 @@ public class EmployeeProcces extends Fragment {
         });
 
         bnd.empAddNotWorksDayBut.setOnClickListener(v -> {
-            if(getActivity() instanceof MainActivity) {
+            if (selectedEmp == null) {
+                Log.e("EmpError", "Seçili çalışan null, işlem yapılamaz!");
+                Toast.makeText(getContext(), "Çalışan bilgisi kayboldu, lütfen tekrar seçin.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).navigateToNotWorksDays(selectedEmp);
             }
         });
         bnd.deleteEmpBut.setOnClickListener(v -> showDeleteConfirmation());
+        bnd.empGetOverDayFragment.setOnClickListener(v -> {
+            OverDayProcces fragment = OverDayProcces.newInstance(selectedEmp);
+            requireActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
     }
 
     private void showDeleteConfirmation() {

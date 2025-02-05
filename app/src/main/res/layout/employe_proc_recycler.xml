@@ -6,15 +6,14 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="8dp"
-    app:cardElevation="2dp"
-    app:cardBackgroundColor="#122833">
-
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/fragment_backround_color">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
+        android:background="@drawable/bg_stat_item_emp"
         android:orientation="vertical"
-        android:padding="4dp">
+        android:padding="1dp">
 
         <TextView
             android:id="@+id/empProcRecTxt"
@@ -36,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif"
-            android:paddingTop="1dp"
+            android:paddingTop="4dp"
             android:text="İnfo →"
             android:textAlignment="center"
             android:textStyle="bold"

@@ -24,14 +24,21 @@ public class Employee implements Serializable
     private int[] dateIn;
     private String name;
     private String surName;
+
     private int worksDay;
     private int totalNotWorksDay;
     private long totalMoney;
     private long totalTransfer;
+    private int overDay;
+
     private ArrayList <EmployeePayment> empPaymentLst;
     private ArrayList <Transfer>    empTransferLst;
     private ArrayList <NotWorksDay>    empNotWorksDayLst;
+    private ArrayList <OverDay>    empOverDayLst;
 
+    private boolean isSelected = false;
+    public boolean isSelected() { return isSelected; }
+    public void setSelected(boolean selected) { isSelected = selected; }
 
 
     public Employee(String name, String surName, int[] dateIn)
@@ -43,6 +50,7 @@ public class Employee implements Serializable
         this.empPaymentLst = new ArrayList<>();
         this.empTransferLst = new ArrayList<>();
         this.empNotWorksDayLst = new ArrayList<>();
+        this.empOverDayLst = new ArrayList<>();
         for(int i = 0; i < 3; i++)
             this.dateIn[i] = dateIn[i];
         this.worksDay = calcWorksDay(dateIn);
@@ -86,12 +94,8 @@ public class Employee implements Serializable
 
         return totalDays;
     }
-    public void displayDateIn(TextView textView) {
-        String formattedDate = dateIn[0] + "/" + dateIn[1] + "/" + dateIn[2];
-        textView.setText("Başlangıç Tarihi: " + formattedDate);
-    }
     public String getDateInStr() {
-        String formattedDate = dateIn[0] + "/" + dateIn[1] + "/" + dateIn[2];
+        String formattedDate = dateIn[0] + "." + dateIn[1] + "." + dateIn[2];
         return formattedDate;
     }
 
@@ -250,5 +254,21 @@ public class Employee implements Serializable
                     new String[]{String.valueOf(this.dbId)});
             db.close();
         });
+    }
+
+    public int getOverDay() {
+        return overDay;
+    }
+
+    public void setOverDay(int overDay) {
+        this.overDay = overDay;
+    }
+
+    public ArrayList<OverDay> getEmpOverDayLst() {
+        return empOverDayLst;
+    }
+
+    public void setEmpOverDayLst(ArrayList<OverDay> empOverDayLst) {
+        this.empOverDayLst = empOverDayLst;
     }
 }

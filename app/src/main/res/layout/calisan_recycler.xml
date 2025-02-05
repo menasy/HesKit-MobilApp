@@ -7,7 +7,7 @@
     android:layout_margin="8dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp"
-    app:cardBackgroundColor="@color/background_blue">
+    app:cardBackgroundColor="@color/fragment_backround_color">
 
     <TextView
         android:id="@+id/calisanRecText"
@@ -25,4 +25,12 @@
         android:drawablePadding="4dp"
         android:drawableEnd="@drawable/ic_currency"
         android:drawableTint="@color/white" />
+
+    <View
+        android:id="@+id/selectionIndicator"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:background="@color/white"
+        android:visibility="gone"/>
+
 </androidx.cardview.widget.CardView>

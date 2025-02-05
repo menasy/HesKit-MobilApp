@@ -40,7 +40,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void navigateToEmployees() {
-        showFragment(new Calisanlar());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragmentContainer, new Calisanlar())
+                .addToBackStack("Calisanlar")
+                .commit();
     }
 
     public void navigateToTransfers(Employee employee) {

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2196F3"
+    android:background="@color/fragment_backround_color"
     tools:context=".AddPayment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -100,6 +100,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:orientation="vertical"
+        android:background="@color/fragment_backround_color"
         app:layout_constraintBottom_toTopOf="@+id/linearLayoutPayment3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
