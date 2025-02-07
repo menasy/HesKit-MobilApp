@@ -75,7 +75,7 @@ public class CalisanAdapter extends RecyclerView.Adapter<CalisanAdapter.CalisanH
 
         // Seçim durumuna göre arkaplan rengi
         holder.itemView.setBackgroundColor(
-                emp.isSelected() ? Color.parseColor("#E3F2FD") : Color.TRANSPARENT
+                emp.isSelected() ? Color.parseColor("#4CAF50") : Color.TRANSPARENT
         );
 
         // Seçim göstergesi (layout'unuzda ImageView eklemelisiniz)
@@ -190,5 +190,5 @@ public class CalisanAdapter extends RecyclerView.Adapter<CalisanAdapter.CalisanH
     public boolean isAllSelected() {
         return selectedEmployees.size() == adapterEmpList.size();
     }
-
+    
 }

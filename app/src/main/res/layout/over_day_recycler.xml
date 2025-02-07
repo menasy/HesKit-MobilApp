@@ -21,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.02"
+            android:letterSpacing="0.01"
             android:lineSpacingExtra="4sp"
             android:text="Mesai: "
             android:background="@drawable/bg_stat_item_emp"

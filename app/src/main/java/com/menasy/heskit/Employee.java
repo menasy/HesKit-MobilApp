@@ -53,7 +53,6 @@ public class Employee implements Serializable
         this.empOverDayLst = new ArrayList<>();
         for(int i = 0; i < 3; i++)
             this.dateIn[i] = dateIn[i];
-        this.worksDay = calcWorksDay(dateIn);
     }
 
     public Employee() {
@@ -68,31 +67,14 @@ public class Employee implements Serializable
         this.empPaymentLst = empPaymentLst;
     }
 
-    private  int calcWorksDay(int[] dateIn)
-    {
-        // Güncel tarih bilgilerini al
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1; // Aylar 0'dan başlıyor
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        // Giriş tarihi bilgileri
-        int inYear = dateIn[2];
-        int inMonth = dateIn[1];
-        int inDay = dateIn[0];
-
-        // Giriş tarihini ve bugünü oluştur
+    private int calcWorksDay(int[] dateIn) {
         Calendar startDate = Calendar.getInstance();
-        startDate.set(inYear, inMonth - 1, inDay); // Giriş tarihi
+        startDate.set(dateIn[2], dateIn[1]-1, dateIn[0]);
 
         Calendar endDate = Calendar.getInstance();
-        endDate.set(year, month - 1, day); // Bugün
 
-        // İki tarih arasındaki farkı gün cinsinden hesapla
-        long differenceInMillis = endDate.getTimeInMillis() - startDate.getTimeInMillis();
-        int totalDays = (int) (differenceInMillis / (1000 * 60 * 60 * 24));
-
-        return totalDays;
+        long difference = endDate.getTimeInMillis() - startDate.getTimeInMillis();
+        return (int) (difference / (1000 * 60 * 60 * 24)) + 1;
     }
     public String getDateInStr() {
         String formattedDate = dateIn[0] + "." + dateIn[1] + "." + dateIn[2];
@@ -132,8 +114,9 @@ public class Employee implements Serializable
     public void setWorksDay(int worksDay) {
         this.worksDay = worksDay;
     }
+
     public int getWorksDay() {
-        return worksDay;
+        return calcWorksDay(this.dateIn);
     }
 
 
@@ -145,16 +128,6 @@ public class Employee implements Serializable
         this.surName = surName;
     }
 
-
-    public void addPayment(EmployeePayment empPayment) {
-        if (empPayment != null)
-        {
-            if (empPaymentLst == null)
-                empPaymentLst = new ArrayList<>();
-            empPaymentLst.add(empPayment);
-        }
-    }
-
     public void setId(int id) {
         this.id = id;
     }
@@ -162,13 +135,6 @@ public class Employee implements Serializable
     public long getTotalMoney()
     {
         return this.totalMoney;
-    }
-
-    public void setDateIn(int day, int month, int year)
-    {
-        dateIn[0] = day;
-        dateIn[1] = month;
-        dateIn[2] = year;
     }
 
     public long getTotalTransferAndPayment()
@@ -202,24 +168,6 @@ public class Employee implements Serializable
         this.totalTransfer = totalTransfer;
     }
 
-    public void addTransfer(Transfer transfer) {
-        if(transfer != null) {
-            if(empTransferLst == null) empTransferLst = new ArrayList<>();
-            empTransferLst.add(transfer);
-            totalTransfer += transfer.getAmountTransfer();
-        }
-    }
-
-    public void removeTransfer(int position) {
-        if(position >= 0 && position < empTransferLst.size()) {
-            Transfer t = empTransferLst.get(position);
-            totalTransfer -= t.getAmountTransfer();
-            empTransferLst.remove(position);
-        }
-    }
-    public void setDateInFromString(String dateStr) {
-        this.dateIn = DateUtils.parseDateArray(dateStr);
-    }
 
     public void setDateIn(int[] dateArray) {
         if(dateArray != null && dateArray.length == 3) {

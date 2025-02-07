@@ -1,7 +1,9 @@
 package com.menasy.heskit;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,11 +13,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+import java.util.Collections;
 
 import com.menasy.heskit.databinding.FragmentOverDayProccesBinding;
 
@@ -65,6 +73,7 @@ public class OverDayProcces extends Fragment {
     private void loadOverDays() {
         DBHelper dbHelper = Singleton.getInstance().getDataBase();
         ArrayList<OverDay> overDays = dbHelper.getOverDaysForEmployee(employee.getDbId());
+        Collections.reverse(overDays);
         employee.setEmpOverDayLst(overDays);
         overDayAdapter.updateList(overDays);
     }
@@ -117,27 +126,51 @@ public class OverDayProcces extends Fragment {
     }
 
 
-
     private void showAddOverDayDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("                    Mesai Saati");
+        // Layout'u inflate et
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_number_input, null);
 
-        final EditText input = new EditText(requireContext());
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        input.setHint("                            Saat giriniz");
-        builder.setView(input);
+        // Görünüm elementlerini bağla
+        EditText input = dialogView.findViewById(R.id.input_field);
+        Button btnPositive = dialogView.findViewById(R.id.btn_positive);
+        Button btnNegative = dialogView.findViewById(R.id.btn_negative);
 
-        builder.setPositiveButton("Ekle", (dialog, which) -> {
+        // Dialog'u oluştur
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .setCancelable(false)
+                .create();
+
+        // Buton click listener'ları
+        btnPositive.setOnClickListener(v -> {
             String enteredText = input.getText().toString().trim();
-            if (!enteredText.isEmpty()) {
+            if(enteredText.isEmpty()) {
+                input.setError("Lütfen geçerli bir değer girin");
+                return;
+            }
+
+            try {
                 int hours = Integer.parseInt(enteredText);
                 addOverDay(hours);
+                dialog.dismiss();
+            } catch (NumberFormatException e) {
+                input.setError("Geçersiz sayı formatı");
             }
         });
 
-        builder.setNegativeButton("İptal", null);
-        builder.show();
+        btnNegative.setOnClickListener(v -> dialog.dismiss());
+
+        // Dialog gösterim ayarları
+        dialog.show();
+
+        // Klavye ayarları
+        input.postDelayed(() -> {
+            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+        }, 100);
     }
+
 
     private void addOverDay(int hours) {
         DBHelper dbHelper = Singleton.getInstance().getDataBase();

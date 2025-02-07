@@ -36,7 +36,7 @@
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
             if (selectedEmployee != null) {
-                setupRecyclerView(); // Önce adapter'ı başlat
+                setupRecyclerView();
                 setupButtons();
                 updatePaymentUI();
             }
@@ -45,7 +45,7 @@
         @Override
         public void onDestroyView() {
             super.onDestroyView();
-            bnd = null; // Memory leak'i önlemek için
+            bnd = null;
         }
         public void onResume() {
             super.onResume();
@@ -138,8 +138,6 @@
                 newPayment.setId((int) paymentId);
 
                 db.setTransactionSuccessful();
-                db.endTransaction();
-
                 requireActivity().runOnUiThread(() -> {
                     selectedEmployee.getEmpPaymentLst().add(0, newPayment);
                     if (employeeProccesAdapter != null) {

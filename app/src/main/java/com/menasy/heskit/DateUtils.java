@@ -23,7 +23,6 @@ public class DateUtils {
         int month = calendar.get(Calendar.MONTH) + 1; // Ay 0'dan başlıyor, +1 ekledim
         int year = calendar.get(Calendar.YEAR);
 
-        // Güncel tarihi array olarak döndür
         return new int[]{day, month, year};
     }
 

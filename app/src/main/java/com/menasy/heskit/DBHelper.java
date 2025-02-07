@@ -14,7 +14,7 @@ import java.util.Date;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "employee.db";
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
 
     public static final String TABLE_EMPLOYEES = "employees";
     public static final String TABLE_PAYMENTS = "payments";
@@ -36,7 +36,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "name TEXT, " +
                 "surName TEXT, " +
-                "worksDay INTEGER, " +
                 "totalMoney INTEGER, " +
                 "totalTransfer INTEGER DEFAULT 0, " +
                 "totalNotWorksDay INTEGER DEFAULT 0, " +
@@ -87,13 +86,34 @@ public class DBHelper extends SQLiteOpenHelper {
         db.setForeignKeyConstraintsEnabled(true);
         db.execSQL("PRAGMA foreign_keys=ON;");
     }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EMPLOYEES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PAYMENTS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANSFERS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_OVER_DAYS);
-        onCreate(db);
+        if(oldVersion < 5) {
+            try {
+                db.beginTransaction();
+
+                db.execSQL("ALTER TABLE employees RENAME TO employees_temp;");
+
+                db.execSQL("CREATE TABLE employees (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "name TEXT, " +
+                        "surName TEXT, " +
+                        "totalMoney INTEGER, " +
+                        "totalTransfer INTEGER DEFAULT 0, " +
+                        "totalNotWorksDay INTEGER DEFAULT 0, " +
+                        "dateIn TEXT);");
+
+                db.execSQL("INSERT INTO employees (id, name, surName, totalMoney, totalTransfer, totalNotWorksDay, dateIn) " +
+                        "SELECT id, name, surName, totalMoney, totalTransfer, totalNotWorksDay, dateIn FROM employees_temp;");
+
+                db.execSQL("DROP TABLE employees_temp;");
+
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        }
     }
 
     public long addEmployee(String name, String surName, int worksDay, long totalMoney, String dateIn) {
@@ -101,7 +121,6 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("name", name);
         values.put("surName", surName);
-        values.put("worksDay", worksDay);
         values.put("totalMoney", totalMoney);
         values.put("dateIn", dateIn);
 
@@ -129,7 +148,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(
                 TABLE_EMPLOYEES,
-                new String[]{"id", "name", "surName", "worksDay", "totalMoney", "totalTransfer", "totalNotWorksDay", "dateIn"},
+                new String[]{"id", "name", "surName", "totalMoney", "totalTransfer", "totalNotWorksDay", "dateIn"},
                 "id=?",
                 new String[]{String.valueOf(employeeId)},
                 null, null, null
@@ -137,22 +156,28 @@ public class DBHelper extends SQLiteOpenHelper {
 
         if(cursor != null && cursor.moveToFirst()) {
             Employee employee = new Employee();
+
+            // Temel bilgiler
             employee.setDbId(cursor.getLong(0));
             employee.setName(cursor.getString(1));
             employee.setSurName(cursor.getString(2));
-            employee.setWorksDay(cursor.getInt(3));
-            employee.setTotalMoney(cursor.getInt(4));
-            employee.setTotalTransfer(cursor.getInt(5));
-            employee.setTotalNotWorksDay(cursor.getInt(6)); // Yeni eklenen sütun
 
-            String dateString = cursor.getString(7);
-            employee.setDateIn(DateUtils.parseDateArray(dateString));
+            // Finansal bilgiler
+            employee.setTotalMoney(cursor.getLong(3));
+            employee.setTotalTransfer(cursor.getLong(4));
+            employee.setTotalNotWorksDay(cursor.getInt(5));
+
+            // Tarih işlemleri
+            String dateString = cursor.getString(6);
+            int[] dateArray = DateUtils.parseDateArray(dateString);
+            employee.setDateIn(dateArray);
 
             cursor.close();
             return employee;
         }
         return null;
     }
+
     public ArrayList<EmployeePayment> getPaymentsForEmployee(long employeeId) {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<EmployeePayment> payments = new ArrayList<>();
@@ -384,11 +409,14 @@ public class DBHelper extends SQLiteOpenHelper {
         ArrayList<OverDay> overDays = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(TABLE_OVER_DAYS,
+        Cursor cursor = db.query(
+                TABLE_OVER_DAYS,
                 new String[]{"id", "date", "daysAmount"},
                 "employeeId=?",
                 new String[]{String.valueOf(employeeId)},
-                null, null, "date DESC"); // Tarihe göre ters sıralama
+                null, null,
+                "date DESC"
+        );
 
         if(cursor.moveToFirst()) {
             do {
