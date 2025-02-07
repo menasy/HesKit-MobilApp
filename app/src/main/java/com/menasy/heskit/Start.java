@@ -24,7 +24,7 @@ public class Start extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentStartBinding.inflate(inflater, container, false);
-        instance = this; // Instance'ı burada set ediyoruz
+        instance = this;
 
         setupBackPressHandler();
         setupClickListeners();
@@ -146,7 +146,7 @@ public class Start extends Fragment {
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(
-                getViewLifecycleOwner(), // Lifecycle owner
+                getViewLifecycleOwner(),
                 backPressedCallback
         );
     }

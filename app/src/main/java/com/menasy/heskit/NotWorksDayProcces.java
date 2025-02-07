@@ -118,7 +118,6 @@ public class NotWorksDayProcces extends Fragment {
                 try {
                     db.beginTransaction();
 
-                    // NotWorksDay ekleme
                     long id = dbHelper.addNotWorksDay(days, date, reason, selectedEmployee.getDbId());
                     if(id == -1) throw new Exception("NotWorksDay eklenemedi");
 
@@ -149,6 +148,7 @@ public class NotWorksDayProcces extends Fragment {
 
                 } finally {
                     db.endTransaction();
+
                 }
 
             } catch(Exception e) {
@@ -160,6 +160,16 @@ public class NotWorksDayProcces extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     loadData();
                     bnd.addNotWorksDayBut.setEnabled(true);
+                    if (isAdded() && !isDetached()) {
+                        requireActivity().runOnUiThread(() -> {
+                            Toast.makeText(
+                                    requireContext(),
+                                    "Başarıyla eklendi",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        });
+                        requireActivity().onBackPressed();
+                    }
                 });
             }
         });
@@ -182,7 +192,7 @@ public class NotWorksDayProcces extends Fragment {
                 db = dbHelper.getWritableDatabase();
                 db.beginTransaction();
 
-                // Silinecek ID'nin var olup olmadığını kontrol et
+                // Silinecek ID'nin var olup olmadığını kontrol ediyoruz.
                 Cursor cursor = db.rawQuery("SELECT id FROM " + DBHelper.TABLE_NOT_WORKS_DAYS + " WHERE id=?", new String[]{String.valueOf(day.getId())});
                 if (cursor.getCount() == 0) {
                     cursor.close();
@@ -303,6 +313,7 @@ public class NotWorksDayProcces extends Fragment {
                     }
                 }
                 loadData();
+
             }
         });
     }

@@ -4,35 +4,23 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.InputType;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.menasy.heskit.databinding.FragmentCalisanlarBinding;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
+
 
 public class Calisanlar extends Fragment {
 
@@ -97,7 +85,6 @@ public class Calisanlar extends Fragment {
     }
 
     private void setupListeners() {
-        // Alt buton click listener
         bnd.bottomActionButton.setOnClickListener(v -> showNumberInputDialog());
         bnd.selectAllEmp.setOnClickListener(v -> toggleSelectAll());
         adapter.setOnEmployeeClickListener(employee -> {
@@ -129,20 +116,19 @@ public class Calisanlar extends Fragment {
     }
 
     private void showNumberInputDialog() {
-        // Custom layout inflate
         LayoutInflater inflater = LayoutInflater.from(requireContext());
         View dialogView = inflater.inflate(R.layout.dialog_number_input, null);
-        // View elementlerini bulma
+
         EditText inputField = dialogView.findViewById(R.id.input_field);
         Button btnPositive = dialogView.findViewById(R.id.btn_positive);
         Button btnNegative = dialogView.findViewById(R.id.btn_negative);
-        // Dialog oluşturma
+
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
-        // Arkaplan stilini ayarla
+
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_stats_card);
-        // Pozitif buton click listener
+
         btnPositive.setOnClickListener(v -> {
             String inputText = inputField.getText().toString().trim();
             if (!inputText.isEmpty()) {
@@ -153,10 +139,11 @@ public class Calisanlar extends Fragment {
                 Toast.makeText(requireContext(), "Lütfen geçerli bir değer girin", Toast.LENGTH_SHORT).show();
             }
         });
-        // Negatif buton click listener
+
         btnNegative.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
-        // İsteğe bağlı: Klavye otomatik açılması
+
+        //klavye
         inputField.postDelayed(() -> {
             InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(inputField, InputMethodManager.SHOW_IMPLICIT);
@@ -169,7 +156,7 @@ public class Calisanlar extends Fragment {
         for (Employee emp : selectedEmployees) {
             OverDay overDay = new OverDay(currentDate, number);
             emp.getEmpOverDayLst().add(0, overDay);
-            // Veritabanına kaydet
+
             DBHelper dbHelper = Singleton.getInstance().getDataBase();
             long insertedId = dbHelper.addOverDay(currentDate, number, emp.getDbId());
             overDay.setId((int) insertedId);
@@ -225,9 +212,9 @@ public class Calisanlar extends Fragment {
                     long totalMoney = cursor.getLong(totalMoneyColumnIndex);
                     String dateInStr = cursor.getString(dateInColumnIndex);
                     long totalTransfer = cursor.getLong(totalTransferIndex);
-                    int[] dateIn = processDateIn(dateInStr);
+                    int[] dateIn = DateUtils.parseDateArray(dateInStr);
                     Employee emp = new Employee(name, surName, dateIn);
-                    emp.setDbId(dbId); // ID'yi set et
+                    emp.setDbId(dbId);
                     emp.setTotalMoney(totalMoney);
                     emp.setTotalTransfer(totalTransfer);
                     ArrayList<EmployeePayment> payments = dbHelper.getPaymentsForEmployee(dbId);
@@ -238,20 +225,5 @@ public class Calisanlar extends Fragment {
             cursor.close();
         }
         originalEmpList.addAll(empList);
-    }
-
-    private static int[] processDateIn(String dateInStr) {
-        try {
-            // Hem '/' hem de '.' karakterlerini ayırıcı olarak kullan
-            String[] dateParts = dateInStr.split("[/\\.]+");
-            int[] dateIn = new int[3];
-            for (int i = 0; i < 3; i++) {
-                dateIn[i] = Integer.parseInt(dateParts[i].trim());
-            }
-            return dateIn;
-        } catch (Exception e) {
-            Log.e("DateUtils", "Geçersiz tarih formatı: " + dateInStr);
-            return new int[]{1, 1, 2023}; // Varsayılan değer
-        }
     }
 }

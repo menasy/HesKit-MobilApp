@@ -78,7 +78,7 @@ public class CalisanAdapter extends RecyclerView.Adapter<CalisanAdapter.CalisanH
                 emp.isSelected() ? Color.parseColor("#4CAF50") : Color.TRANSPARENT
         );
 
-        // Seçim göstergesi (layout'unuzda ImageView eklemelisiniz)
+        // Seçim göstergesi
         holder.binding.selectionIndicator.setVisibility(emp.isSelected() ? View.VISIBLE : View.GONE);
 
         holder.itemView.setOnClickListener(v -> {
@@ -155,9 +155,8 @@ public class CalisanAdapter extends RecyclerView.Adapter<CalisanAdapter.CalisanH
         }
         selectedEmployees.clear();
 
-        // Listener'ı tetikle
         if (selectionListener != null) {
-            selectionListener.onSelectionChanged(0); // 0 seçili olduğunu bildir
+            selectionListener.onSelectionChanged(0);
         }
         notifyDataSetChanged();
     }

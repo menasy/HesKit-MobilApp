@@ -7,10 +7,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
 import java.util.ArrayList;
-import java.util.Date;
-
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "employee.db";
@@ -116,7 +113,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public long addEmployee(String name, String surName, int worksDay, long totalMoney, String dateIn) {
+    public long addEmployee(String name, String surName, long totalMoney, String dateIn) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", name);
@@ -126,7 +123,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         long employeeId = db.insert(TABLE_EMPLOYEES, null, values);
         db.close();
-        return employeeId; // Eklenen çalışanın ID'sini döner
+        return employeeId;
     }
 
     public long addPayment(long amount, String paymentType, String paymentDate, long employeeId) {
@@ -157,17 +154,14 @@ public class DBHelper extends SQLiteOpenHelper {
         if(cursor != null && cursor.moveToFirst()) {
             Employee employee = new Employee();
 
-            // Temel bilgiler
             employee.setDbId(cursor.getLong(0));
             employee.setName(cursor.getString(1));
             employee.setSurName(cursor.getString(2));
 
-            // Finansal bilgiler
             employee.setTotalMoney(cursor.getLong(3));
             employee.setTotalTransfer(cursor.getLong(4));
             employee.setTotalNotWorksDay(cursor.getInt(5));
 
-            // Tarih işlemleri
             String dateString = cursor.getString(6);
             int[] dateArray = DateUtils.parseDateArray(dateString);
             employee.setDateIn(dateArray);
@@ -241,32 +235,28 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<Transfer> transfers = new ArrayList<>();
 
-        // Sorgu: "id", "amount", "transferDate", "sentToPerson" sütunları çekiliyor.
         Cursor cursor = db.query(DBHelper.TABLE_TRANSFERS,
                 new String[]{"id", "amount", "transferDate", "sentToPerson"},
                 null, null, null, null, "id DESC");
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                // Her bir sütun için indeks alınır.
+
                 int idIndex = cursor.getColumnIndex("id");
                 int amountIndex = cursor.getColumnIndex("amount");
                 int transferDateIndex = cursor.getColumnIndex("transferDate");
                 int sentToPersonIndex = cursor.getColumnIndex("sentToPerson");
 
-                // Eğer herhangi bir sütun bulunamazsa (indeks -1 ise) o satırı atla
                 if (idIndex == -1 || amountIndex == -1 || transferDateIndex == -1 || sentToPersonIndex == -1) {
                     Log.e("DBHelper", "Eksik sütun tespit edildi. Satır atlanıyor.");
                     continue;
                 }
 
-                // Sütunlardan veriler alınır
                 int id = cursor.getInt(idIndex);
                 long amount = cursor.getLong(amountIndex);
                 String transferDate = cursor.getString(transferDateIndex);
                 String sentToPerson = cursor.getString(sentToPersonIndex);
 
-                // Transfer nesnesi oluşturulur
                 Transfer transfer = new Transfer(amount, transferDate, sentToPerson);
                 transfer.setId(id);
                 transfers.add(transfer);

@@ -1,10 +1,8 @@
 package com.menasy.heskit;
 
 import android.util.Log;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 public class DateUtils {
@@ -28,7 +26,6 @@ public class DateUtils {
 
     public static int[] parseDateArray(String dateStr) {
         try {
-            // Hem '/' hem de '.' karakterlerini ayırıcı olarak kullanmak için regex kullanıyoruz
             String[] parts = dateStr.split("[/\\.]+");
             return new int[]{
                     Integer.parseInt(parts[0].trim()),
@@ -37,7 +34,7 @@ public class DateUtils {
             };
         } catch (Exception e) {
             Log.e("DateUtils", "Geçersiz tarih formatı: " + dateStr);
-            return new int[]{1, 1, 2023}; // Varsayılan değer
+            return new int[]{1, 1, 2023};
         }
     }
 

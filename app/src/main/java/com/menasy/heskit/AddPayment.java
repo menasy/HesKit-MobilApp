@@ -142,7 +142,7 @@
                     selectedEmployee.getEmpPaymentLst().add(0, newPayment);
                     if (employeeProccesAdapter != null) {
                         employeeProccesAdapter.updateList(selectedEmployee.getEmpPaymentLst());
-                        employeeProccesAdapter.notifyDataSetChanged();  // **Tam güncelleme yap**
+                        employeeProccesAdapter.notifyDataSetChanged();
                         bnd.paymentRecycler.smoothScrollToPosition(0);
                     }
                     Calisanlar.loadEmployeeDataFromDB();
@@ -159,6 +159,16 @@
             } finally {
                 if (db.inTransaction()) db.endTransaction();
                 bnd.addMoneyBut.setEnabled(true);
+                if (isAdded() && !isDetached()) {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(
+                                requireContext(),
+                                "Başarıyla eklendi",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    });
+                    requireActivity().onBackPressed();
+                }
             }
         }
 
@@ -181,7 +191,6 @@
                 int deletedRows = db.delete(DBHelper.TABLE_PAYMENTS, "id=?", new String[]{String.valueOf(payment.getId())});
 
                 if(deletedRows > 0) {
-                    // TotalMoney'i hem local hem veritabanında güncelle
                     long newTotal = selectedEmployee.getTotalMoney() - payment.getTakedMoney();
                     selectedEmployee.setTotalMoney(newTotal);
 
@@ -189,11 +198,9 @@
                     values.put("totalMoney", newTotal);
                     db.update(DBHelper.TABLE_EMPLOYEES, values, "id=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
 
-                    // Listeyi ve adapter'i güncelle
                     selectedEmployee.getEmpPaymentLst().remove(position);
                     employeeProccesAdapter.notifyItemRemoved(position);
 
-                    // Verileri yeniden yükle
                     refreshPaymentData();
                     db.setTransactionSuccessful();
 

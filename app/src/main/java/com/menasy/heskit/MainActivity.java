@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     public void navigateToEmpProcces(Employee employee) {
         EmployeeProcces.setSelectedEmp(employee);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContainer, new EmployeeProcces(), "employee_procces") // Tag ekleyin
+                .replace(R.id.fragmentContainer, new EmployeeProcces(), "employee_procces")
                 .addToBackStack(null)
                 .commit();
     }

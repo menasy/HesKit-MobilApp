@@ -1,17 +1,13 @@
 package com.menasy.heskit;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
-import android.widget.TextView;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.concurrent.Executors;
-
 public class Employee implements Serializable
 {
     private static int index;
@@ -25,7 +21,6 @@ public class Employee implements Serializable
     private String name;
     private String surName;
 
-    private int worksDay;
     private int totalNotWorksDay;
     private long totalMoney;
     private long totalTransfer;
@@ -111,9 +106,7 @@ public class Employee implements Serializable
         String dest = getName() + " " + getSurName();
         return dest;
     }
-    public void setWorksDay(int worksDay) {
-        this.worksDay = worksDay;
-    }
+
 
     public int getWorksDay() {
         return calcWorksDay(this.dateIn);
@@ -145,7 +138,7 @@ public class Employee implements Serializable
     public Long empPutDataBase() {
         try {
             DBHelper dbHelper = Singleton.getInstance().getDataBase();
-            return dbHelper.addEmployee(this.name,this.surName,this.worksDay,this.getTotalMoney(),this.getDateInStr());
+            return dbHelper.addEmployee(this.name,this.surName,this.getTotalMoney(),this.getDateInStr());
         } catch (SQLiteException e) {
             Log.e("DB", "Veritabanı hatası: " + e.getMessage());
             return -1L;
@@ -192,7 +185,7 @@ public class Employee implements Serializable
 
     public void setTotalNotWorksDay(int total) {
         this.totalNotWorksDay = total;
-        // Veritabanını da güncelle
+
         Executors.newSingleThreadExecutor().execute(() -> {
             DBHelper dbHelper = Singleton.getInstance().getDataBase();
             SQLiteDatabase db = dbHelper.getWritableDatabase();

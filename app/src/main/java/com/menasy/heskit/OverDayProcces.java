@@ -3,25 +3,17 @@ package com.menasy.heskit;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Typeface;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.text.InputType;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import java.util.Collections;
 
@@ -127,11 +119,11 @@ public class OverDayProcces extends Fragment {
 
 
     private void showAddOverDayDialog() {
-        // Layout'u inflate et
+
         View dialogView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_number_input, null);
 
-        // Görünüm elementlerini bağla
+        // Görünüm elementlerini bağladık
         EditText input = dialogView.findViewById(R.id.input_field);
         Button btnPositive = dialogView.findViewById(R.id.btn_positive);
         Button btnNegative = dialogView.findViewById(R.id.btn_negative);
@@ -161,7 +153,6 @@ public class OverDayProcces extends Fragment {
 
         btnNegative.setOnClickListener(v -> dialog.dismiss());
 
-        // Dialog gösterim ayarları
         dialog.show();
 
         // Klavye ayarları
@@ -187,5 +178,6 @@ public class OverDayProcces extends Fragment {
         } else {
             Toast.makeText(requireContext(), "Ekleme başarısız!", Toast.LENGTH_SHORT).show();
         }
+
     }
 }

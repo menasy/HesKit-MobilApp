@@ -49,7 +49,6 @@ public class EmployeeProcces extends Fragment {
         refreshEmployeeData();
     }
     public void refreshEmployeeData() {
-        // Veritabanından güncel verileri yükle
         DBHelper dbHelper = Singleton.getInstance().getDataBase();
         Employee updatedEmployee = dbHelper.getEmployeeById(selectedEmp.getDbId());
         if(updatedEmployee != null) {
@@ -71,7 +70,7 @@ public class EmployeeProcces extends Fragment {
     }
 
     private void setStyledText(TextView textView, String label, String value, boolean isMoney) {
-        int color = isMoney ? Color.GREEN : Color.CYAN; // Para içerenler yeşil, diğerleri mavi
+        int color = isMoney ? Color.GREEN : Color.CYAN;
         setFormattedText(textView, label, value, color);
     }
 

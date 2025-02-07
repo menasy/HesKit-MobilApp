@@ -57,8 +57,8 @@
         }
 
         public void updateList(ArrayList<EmployeePayment> newList) {
-            this.adapterEmpPymntList = new ArrayList<>(newList); // Yeni liste oluştur
-            notifyDataSetChanged(); // Tüm veri setini yenile
+            this.adapterEmpPymntList = new ArrayList<>(newList);
+            notifyDataSetChanged();
         }
 
         public static class EmplooyeProccesHolder extends RecyclerView.ViewHolder {

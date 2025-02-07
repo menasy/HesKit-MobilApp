@@ -55,7 +55,6 @@ public class Havale extends Fragment {
         selectedEmployee.getEmpTransferLst().clear();
         selectedEmployee.getEmpTransferLst().addAll(transfers);
 
-        // Toplam transfer miktarını güncelle
         selectedEmployee.setTotalTransfer(calculateTotalTransfer(transfers));
     }
 
@@ -111,14 +110,13 @@ public class Havale extends Fragment {
 
             if(transferId == -1) throw new Exception("Havale eklenemedi");
 
-            // Veritabanı işlemlerini tamamla
             selectedEmployee.setTotalTransfer(selectedEmployee.getTotalTransfer() + amount);
             ContentValues values = new ContentValues();
             values.put("totalTransfer", selectedEmployee.getTotalTransfer());
             db.update(DBHelper.TABLE_EMPLOYEES, values, "id=?", new String[]{String.valueOf(selectedEmployee.getDbId())});
             db.setTransactionSuccessful();
 
-            // UI güncellemelerini ana thread'de yap
+            // UI güncellemelerini ana thredde olmalı.
             requireActivity().runOnUiThread(() -> {
                 loadTransfersFromDB();
                 havaleAdapter.updateList(selectedEmployee.getEmpTransferLst());
@@ -135,6 +133,16 @@ public class Havale extends Fragment {
             );
         } finally {
             db.endTransaction();
+            if (isAdded() && !isDetached()) {
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(
+                            requireContext(),
+                            "Başarıyla eklendi",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                });
+                requireActivity().onBackPressed();
+            }
         }
     }
 
@@ -155,6 +163,7 @@ public class Havale extends Fragment {
         try {
             int deletedRows = db.delete(DBHelper.TABLE_TRANSFERS, "id=?", new String[]{String.valueOf(transfer.getId())});
             if(deletedRows > 0) {
+
                 // Veritabanı güncellemeleri
                 selectedEmployee.setTotalTransfer(selectedEmployee.getTotalTransfer() - transfer.getAmountTransfer());
                 ContentValues values = new ContentValues();
@@ -164,7 +173,6 @@ public class Havale extends Fragment {
                 // Liste ve adapter güncelleme
                 selectedEmployee.getEmpTransferLst().remove(position);
 
-                // Eğer son öğe silindiyse
                 if(selectedEmployee.getEmpTransferLst().isEmpty()) {
                     havaleAdapter.updateList(new ArrayList<>()); // Tüm listeyi temizle
                 } else {
