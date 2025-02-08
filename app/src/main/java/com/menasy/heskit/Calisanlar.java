@@ -153,7 +153,10 @@ public class Calisanlar extends Fragment {
     private void processEnteredNumber(int number) {
         ArrayList<Employee> selectedEmployees = adapter.getSelectedEmployees();
         String currentDate = DateUtils.getCurrentDate();
+
         for (Employee emp : selectedEmployees) {
+            emp.setTotalOverDay(emp.getTotalOverDay() + number);
+
             OverDay overDay = new OverDay(currentDate, number);
             emp.getEmpOverDayLst().add(0, overDay);
 
@@ -204,7 +207,8 @@ public class Calisanlar extends Fragment {
                 int totalMoneyColumnIndex = cursor.getColumnIndex("totalMoney");
                 int dateInColumnIndex = cursor.getColumnIndex("dateIn");
                 int totalTransferIndex = cursor.getColumnIndex("totalTransfer");
-                if (idColumnIndex != -1 && nameColumnIndex != -1 && surNameColumnIndex != -1
+                int totalOverDayIndex = cursor.getColumnIndex("totalOverDay");
+                if (idColumnIndex != -1 && nameColumnIndex != -1 && surNameColumnIndex != -1 && totalOverDayIndex != -1
                         && totalMoneyColumnIndex != -1 && dateInColumnIndex != -1 && totalTransferIndex != -1) {
                     long dbId = cursor.getLong(idColumnIndex);
                     String name = cursor.getString(nameColumnIndex);
@@ -213,10 +217,12 @@ public class Calisanlar extends Fragment {
                     String dateInStr = cursor.getString(dateInColumnIndex);
                     long totalTransfer = cursor.getLong(totalTransferIndex);
                     int[] dateIn = DateUtils.parseDateArray(dateInStr);
+                    int totalOverDay = cursor.getInt(totalOverDayIndex);
                     Employee emp = new Employee(name, surName, dateIn);
                     emp.setDbId(dbId);
                     emp.setTotalMoney(totalMoney);
                     emp.setTotalTransfer(totalTransfer);
+                    emp.setTotalOverDay(totalOverDay);
                     ArrayList<EmployeePayment> payments = dbHelper.getPaymentsForEmployee(dbId);
                     emp.setEmpPaymentLst(payments);
                     empList.add(emp);

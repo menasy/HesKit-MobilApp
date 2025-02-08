@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "employee.db";
-    public static final int DATABASE_VERSION = 5;
+    public static final int DATABASE_VERSION = 6;
 
     public static final String TABLE_EMPLOYEES = "employees";
     public static final String TABLE_PAYMENTS = "payments";
@@ -36,6 +36,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "totalMoney INTEGER, " +
                 "totalTransfer INTEGER DEFAULT 0, " +
                 "totalNotWorksDay INTEGER DEFAULT 0, " +
+                "totalOverDay INTEGER DEFAULT 0, " +
                 "dateIn TEXT)";
 
         String createPaymentsTable = "CREATE TABLE " + TABLE_PAYMENTS + " (" +
@@ -86,26 +87,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if(oldVersion < 5) {
+        if(oldVersion < 6) { // Versiyonu artırın
             try {
                 db.beginTransaction();
-
-                db.execSQL("ALTER TABLE employees RENAME TO employees_temp;");
-
-                db.execSQL("CREATE TABLE employees (" +
-                        "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        "name TEXT, " +
-                        "surName TEXT, " +
-                        "totalMoney INTEGER, " +
-                        "totalTransfer INTEGER DEFAULT 0, " +
-                        "totalNotWorksDay INTEGER DEFAULT 0, " +
-                        "dateIn TEXT);");
-
-                db.execSQL("INSERT INTO employees (id, name, surName, totalMoney, totalTransfer, totalNotWorksDay, dateIn) " +
-                        "SELECT id, name, surName, totalMoney, totalTransfer, totalNotWorksDay, dateIn FROM employees_temp;");
-
-                db.execSQL("DROP TABLE employees_temp;");
-
+                // Yeni sütunu ekleyin
+                db.execSQL("ALTER TABLE employees ADD COLUMN totalOverDay INTEGER DEFAULT 0;");
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
@@ -145,7 +131,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(
                 TABLE_EMPLOYEES,
-                new String[]{"id", "name", "surName", "totalMoney", "totalTransfer", "totalNotWorksDay", "dateIn"},
+                new String[]{"id", "name", "surName", "totalMoney", "totalTransfer", "totalNotWorksDay", "totalOverDay", "dateIn"},
                 "id=?",
                 new String[]{String.valueOf(employeeId)},
                 null, null, null
@@ -161,8 +147,9 @@ public class DBHelper extends SQLiteOpenHelper {
             employee.setTotalMoney(cursor.getLong(3));
             employee.setTotalTransfer(cursor.getLong(4));
             employee.setTotalNotWorksDay(cursor.getInt(5));
+            employee.setTotalOverDay(cursor.getInt(6));
 
-            String dateString = cursor.getString(6);
+            String dateString = cursor.getString(7);
             int[] dateArray = DateUtils.parseDateArray(dateString);
             employee.setDateIn(dateArray);
 
@@ -426,6 +413,10 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(TABLE_OVER_DAYS, "id=?", new String[]{String.valueOf(overDayId)});
     }
-
+    public void updateEmployeeOverDay(long employeeId, int totalOverDay) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("totalOverDay", totalOverDay);
+        db.update(TABLE_EMPLOYEES, values, "id=?", new String[]{String.valueOf(employeeId)});
+    }
 }
-

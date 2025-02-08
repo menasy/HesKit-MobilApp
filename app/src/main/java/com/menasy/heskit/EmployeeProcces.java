@@ -74,13 +74,15 @@ public class EmployeeProcces extends Fragment {
         setFormattedText(textView, label, value, color);
     }
 
-    private void setupUI() {
+    private void setupUI()
+    {
         bnd.empProcTitleTxt.setText(selectedEmp.getNameAndSurname());
         setStyledText(bnd.dateInTxt, "Başlangıç Tarihi: ", selectedEmp.getDateInStr() + "", false);
-        setStyledText(bnd.countDayTxt, "Çalıştığı Gün Sayısı: ", selectedEmp.getWorksDay() + "", false);
+        setStyledText(bnd.countDayTxt, "Çalıştığı Gün: ", selectedEmp.getWorksDay() + "", false);
         setStyledText(bnd.takedMoneyTxtView, "Harçlık: ", selectedEmp.getTotalMoney() + "₺", true);
         setStyledText(bnd.makedTotalTransfer, "Havale: ", selectedEmp.getTotalTransfer() + "₺", true);
-        setStyledText(bnd.empNotWorksDayTxtView, "Çalışmadığı Gün Sayısı: ", selectedEmp.getTotalNotWorksDay() + "", false);
+        setStyledText(bnd.empNotWorksDayTxtView, "Çalışmadığı Gün: ", selectedEmp.getTotalNotWorksDay() + "", false);
+        setStyledText(bnd.totalOverDayTxtView, "Toplam Mesai: ", selectedEmp.getTotalOverDay() + "", false);
 
     }
 

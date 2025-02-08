@@ -24,7 +24,7 @@ public class Employee implements Serializable
     private int totalNotWorksDay;
     private long totalMoney;
     private long totalTransfer;
-    private int overDay;
+    private int totalOverDay;
 
     private ArrayList <EmployeePayment> empPaymentLst;
     private ArrayList <Transfer>    empTransferLst;
@@ -197,13 +197,8 @@ public class Employee implements Serializable
         });
     }
 
-    public int getOverDay() {
-        return overDay;
-    }
 
-    public void setOverDay(int overDay) {
-        this.overDay = overDay;
-    }
+
 
     public ArrayList<OverDay> getEmpOverDayLst() {
         return empOverDayLst;
@@ -211,5 +206,17 @@ public class Employee implements Serializable
 
     public void setEmpOverDayLst(ArrayList<OverDay> empOverDayLst) {
         this.empOverDayLst = empOverDayLst;
+    }
+
+    public int getTotalOverDay() {
+        return totalOverDay;
+    }
+
+    public void setTotalOverDay(int totalOverDay) {
+        this.totalOverDay = totalOverDay;
+        Executors.newSingleThreadExecutor().execute(() -> {
+            DBHelper dbHelper = Singleton.getInstance().getDataBase();
+            dbHelper.updateEmployeeOverDay(this.dbId, totalOverDay);
+        });
     }
 }

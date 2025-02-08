@@ -86,6 +86,8 @@ public class OverDayProcces extends Fragment {
     private void deleteOverDay(OverDay overDay, int position) {
         DBHelper dbHelper = Singleton.getInstance().getDataBase();
         if(dbHelper.deleteOverDay(overDay.getId()) > 0) {
+            employee.setTotalOverDay(employee.getTotalOverDay() - overDay.getDaysAmount());
+
             overDayAdapter.updateList(dbHelper.getOverDaysForEmployee(employee.getDbId()));
             Toast.makeText(requireContext(), "Mesai silindi", Toast.LENGTH_SHORT).show();
         }
@@ -104,6 +106,8 @@ public class OverDayProcces extends Fragment {
         DBHelper dbHelper = Singleton.getInstance().getDataBase();
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         try {
+            employee.setTotalOverDay(0);
+
             db.delete(DBHelper.TABLE_OVER_DAYS, "employeeId=?", new String[]{String.valueOf(employee.getDbId())});
         } finally {
             db.close();
@@ -170,14 +174,12 @@ public class OverDayProcces extends Fragment {
         long insertedId = dbHelper.addOverDay(currentDate, hours, employee.getDbId());
 
         if(insertedId != -1) {
+            employee.setTotalOverDay(employee.getTotalOverDay() + hours);
+
             OverDay newOverDay = new OverDay(currentDate, hours);
             newOverDay.setId((int) insertedId);
             overDayAdapter.addOverDay(newOverDay);
             bnd.overDayRecyclerView.smoothScrollToPosition(0);
-
-        } else {
-            Toast.makeText(requireContext(), "Ekleme başarısız!", Toast.LENGTH_SHORT).show();
         }
-
     }
 }

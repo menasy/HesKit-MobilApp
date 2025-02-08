@@ -105,6 +105,22 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/totalOverDayTxtView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp"
+            android:background="@drawable/bg_stat_item"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center_vertical"
+            android:letterSpacing="0.04"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:text="Toplam Mesai: 0"
+            android:textColor="@color/white"
+            android:textSize="19sp"
+            android:textStyle="bold" />
+
+        <TextView
             android:id="@+id/takedMoneyTxtView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
