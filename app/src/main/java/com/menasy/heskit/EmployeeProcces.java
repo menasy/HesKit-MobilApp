@@ -25,6 +25,7 @@ public class EmployeeProcces extends Fragment {
 
     private FragmentEmployeeProccesBinding bnd;
     private static Employee selectedEmp;
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public static void setSelectedEmp(Employee employee) {
         selectedEmp = employee;
@@ -47,6 +48,14 @@ public class EmployeeProcces extends Fragment {
     public void onResume() {
         super.onResume();
         refreshEmployeeData();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (executor != null && !executor.isShutdown()) {
+            executor.shutdownNow();
+        }
     }
     public void refreshEmployeeData() {
         DBHelper dbHelper = Singleton.getInstance().getDataBase();
@@ -128,7 +137,6 @@ public class EmployeeProcces extends Fragment {
     }
 
     private void deleteEmployee() {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             DBHelper dbHelper = Singleton.getInstance().getDataBase();
             SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -168,7 +176,9 @@ public class EmployeeProcces extends Fragment {
                 );
             } finally {
                 db.endTransaction();
-                executor.shutdown();
+                if (!executor.isShutdown()) {
+                    executor.shutdown();
+                }
             }
         });
     }

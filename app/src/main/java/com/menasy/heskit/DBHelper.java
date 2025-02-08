@@ -108,7 +108,6 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put("dateIn", dateIn);
 
         long employeeId = db.insert(TABLE_EMPLOYEES, null, values);
-        db.close();
         return employeeId;
     }
 
@@ -366,21 +365,21 @@ public class DBHelper extends SQLiteOpenHelper {
         return days;
     }
 
-    public int deleteNotWorksDay(int dayId) {
+    public int deleteNotWorksDay(long dayId) {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(TABLE_NOT_WORKS_DAYS, "id=?", new String[]{String.valueOf(dayId)});
     }
 
     public long addOverDay(String date, int days, long employeeId) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("date", date);
-        values.put("daysAmount", days);
-        values.put("employeeId", employeeId);
-
-        long result = db.insert(TABLE_OVER_DAYS, null, values);
-        db.close();
-        return result;
+        try {
+            ContentValues values = new ContentValues();
+            values.put("date", date);
+            values.put("daysAmount", days);
+            values.put("employeeId", employeeId);
+            return db.insert(TABLE_OVER_DAYS, null, values);
+        } finally {
+        }
     }
     public ArrayList<OverDay> getOverDaysForEmployee(long employeeId) {
         ArrayList<OverDay> overDays = new ArrayList<>();
@@ -415,8 +414,17 @@ public class DBHelper extends SQLiteOpenHelper {
     }
     public void updateEmployeeOverDay(long employeeId, int totalOverDay) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("totalOverDay", totalOverDay);
-        db.update(TABLE_EMPLOYEES, values, "id=?", new String[]{String.valueOf(employeeId)});
+        db.beginTransaction();
+        try {
+            ContentValues values = new ContentValues();
+            values.put("totalOverDay", totalOverDay);
+            db.update(TABLE_EMPLOYEES, values, "id=?", new String[]{String.valueOf(employeeId)});
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e("DB_ERROR", "Mesai güncelleme hatası: ", e);
+        } finally {
+            db.endTransaction();
+        }
     }
+
 }

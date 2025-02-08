@@ -7,6 +7,7 @@ import android.util.Log;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 public class Employee implements Serializable
 {
@@ -193,7 +194,6 @@ public class Employee implements Serializable
             values.put("totalNotWorksDay", total);
             db.update(DBHelper.TABLE_EMPLOYEES, values, "id=?",
                     new String[]{String.valueOf(this.dbId)});
-            db.close();
         });
     }
 
@@ -214,9 +214,16 @@ public class Employee implements Serializable
 
     public void setTotalOverDay(int totalOverDay) {
         this.totalOverDay = totalOverDay;
-        Executors.newSingleThreadExecutor().execute(() -> {
-            DBHelper dbHelper = Singleton.getInstance().getDataBase();
-            dbHelper.updateEmployeeOverDay(this.dbId, totalOverDay);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            try {
+                DBHelper dbHelper = Singleton.getInstance().getDataBase();
+                dbHelper.updateEmployeeOverDay(this.dbId, totalOverDay);
+            } catch (Exception e) {
+                Log.e("THREAD_ERROR", "Mesai güncelleme hatası: ", e);
+            } finally {
+                executor.shutdown(); // Thread'i kapat
+            }
         });
     }
 }

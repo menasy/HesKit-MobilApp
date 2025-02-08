@@ -157,7 +157,7 @@
                         Toast.makeText(requireContext(), "Hata: " + e.getMessage(), Toast.LENGTH_LONG).show()
                 );
             } finally {
-                if (db.inTransaction()) db.endTransaction();
+                if (db != null && db.inTransaction()) db.endTransaction();
                 bnd.addMoneyBut.setEnabled(true);
                 if (isAdded() && !isDetached()) {
                     requireActivity().runOnUiThread(() -> {

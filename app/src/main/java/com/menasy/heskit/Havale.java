@@ -95,9 +95,9 @@ public class Havale extends Fragment {
 
         DBHelper dbHelper = Singleton.getInstance().getDataBase();
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.beginTransaction();
-
         try {
+            db.beginTransaction();
+
             long amount = Integer.parseUnsignedInt(amountStr);
             if(amount <= 0) throw new NumberFormatException();
 
@@ -132,7 +132,9 @@ public class Havale extends Fragment {
                     Toast.makeText(requireContext(), "Hata: " + e.getMessage(), Toast.LENGTH_LONG).show()
             );
         } finally {
-            db.endTransaction();
+            if (db != null) {
+                db.endTransaction();
+            }
             if (isAdded() && !isDetached()) {
                 requireActivity().runOnUiThread(() -> {
                     Toast.makeText(

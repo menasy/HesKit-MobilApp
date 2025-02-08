@@ -110,7 +110,6 @@ public class OverDayProcces extends Fragment {
 
             db.delete(DBHelper.TABLE_OVER_DAYS, "employeeId=?", new String[]{String.valueOf(employee.getDbId())});
         } finally {
-            db.close();
         }
         overDayAdapter.updateList(new ArrayList<>());
     }
