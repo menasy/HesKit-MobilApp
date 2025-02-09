@@ -39,10 +39,7 @@ Günümüz iş dünyasında, çalışanların maaş ödemeleri, mesai takibi ve 
 
 ---
 
-## **Sonuç**
+## **HesKit**
 
 **HesKit**, işçi ödemelerinin düzenlenmesi, finansal kayıtların takibi ve çalışma günlerinin yönetimi gibi iş süreçlerini optimize eden kapsamlı bir mobil uygulamadır. Kullanıcı dostu tasarımı sayesinde işverenler ve yöneticiler, çalışanlara yönelik finansal işlemleri hızlı ve hatasız bir şekilde gerçekleştirebilirler. Gerçek zamanlı veri güncelleme ve güçlü veritabanı altyapısıyla **HesKit**, işletmelerin en güvenilir işçi yönetim araçlarından biri olmaya adaydır.
 
-📥 **[HesKit APK Dosyasını İndir](https://github.com/menasy/HesKit-MobilApp/blob/main/OutFiles/HesKitV1.apk)**
-
-📺 **[Uygulama Tanıtım Videosunu İndir](https://github.com/menasy/HesKit-MobilApp/blob/main/OutFiles/HesKitVideo.mkv)**
