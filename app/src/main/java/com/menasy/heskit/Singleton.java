@@ -28,4 +28,10 @@
                 }
                 return dataBase;
             }
+            public void closeDatabase() {
+                if (dataBase != null) {
+                    dataBase.close();
+                    dataBase = null;
+                }
+            }
         }

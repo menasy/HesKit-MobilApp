@@ -208,50 +208,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public long addTransfer(long amount, String transferDate, String sentToPerson) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("amount", amount);
-        values.put("transferDate", transferDate);
-        values.put("sentToPerson", sentToPerson);
-        return db.insert(TABLE_TRANSFERS, null, values);
-    }
-
-    public ArrayList<Transfer> getAllTransfers() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        ArrayList<Transfer> transfers = new ArrayList<>();
-
-        Cursor cursor = db.query(DBHelper.TABLE_TRANSFERS,
-                new String[]{"id", "amount", "transferDate", "sentToPerson"},
-                null, null, null, null, "id DESC");
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-
-                int idIndex = cursor.getColumnIndex("id");
-                int amountIndex = cursor.getColumnIndex("amount");
-                int transferDateIndex = cursor.getColumnIndex("transferDate");
-                int sentToPersonIndex = cursor.getColumnIndex("sentToPerson");
-
-                if (idIndex == -1 || amountIndex == -1 || transferDateIndex == -1 || sentToPersonIndex == -1) {
-                    Log.e("DBHelper", "Eksik sütun tespit edildi. Satır atlanıyor.");
-                    continue;
-                }
-
-                int id = cursor.getInt(idIndex);
-                long amount = cursor.getLong(amountIndex);
-                String transferDate = cursor.getString(transferDateIndex);
-                String sentToPerson = cursor.getString(sentToPersonIndex);
-
-                Transfer transfer = new Transfer(amount, transferDate, sentToPerson);
-                transfer.setId(id);
-                transfers.add(transfer);
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
-        return transfers;
-    }
-
     public long getTotalTransfers() {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT SUM(amount) FROM " + TABLE_TRANSFERS, null);
@@ -260,14 +216,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return total;
     }
 
-    public void deleteAllTransfers() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_TRANSFERS, null, null);
-    }
-    public int deleteTransfer(int transferId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete(TABLE_TRANSFERS, "id=?", new String[]{String.valueOf(transferId)});
-    }
     public ArrayList<Transfer> getTransfersForEmployee(long employeeId) {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<Transfer> transfers = new ArrayList<>();
@@ -365,21 +313,20 @@ public class DBHelper extends SQLiteOpenHelper {
         return days;
     }
 
-    public int deleteNotWorksDay(long dayId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete(TABLE_NOT_WORKS_DAYS, "id=?", new String[]{String.valueOf(dayId)});
-    }
-
     public long addOverDay(String date, int days, long employeeId) {
         SQLiteDatabase db = this.getWritableDatabase();
+        long val = -1;
         try {
             ContentValues values = new ContentValues();
             values.put("date", date);
             values.put("daysAmount", days);
             values.put("employeeId", employeeId);
-            return db.insert(TABLE_OVER_DAYS, null, values);
-        } finally {
+            val = db.insert(TABLE_OVER_DAYS, null, values);
+            return val;
+        } catch (Exception e){
+            Log.d("DBaddIssue", "addOverDay: " + e);
         }
+        return val;
     }
     public ArrayList<OverDay> getOverDaysForEmployee(long employeeId) {
         ArrayList<OverDay> overDays = new ArrayList<>();
