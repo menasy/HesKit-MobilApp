@@ -4,7 +4,7 @@
 
 🔗 **[Uygulama Tanıtım Videosunu İndir](https://github.com/menasy/HesKit-MobilApp/blob/main/OutFiles/HesKitVideo.mkv)**
 
-📥 **[HesKit APK Dosyasını İndir](https://github.com/menasy/HesKit-MobilApp/blob/main/OutFiles/HesKitV1.apk)**
+[📥 APK Dosyasını İndir](https://github.com/menasy/HesKit-MobilApp/raw/main/OutFiles/HesKitV1.apk)
 
 ---
 
