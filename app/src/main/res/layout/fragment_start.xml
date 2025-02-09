@@ -139,16 +139,23 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/poweredByTxtView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="24dp"
+        android:clickable="true"
+        android:focusable="true"
         android:text="Powered by menasy"
-        android:textColor="@color/primary_dark"
-        android:textSize="10sp"
+        android:textColor="#FFEE58"
+        android:textSize="16sp"
         android:textStyle="italic"
+        android:textColorLink="#64B5F6"
+        android:autoLink="web"
+        android:linksClickable="true"
+        android:background="?selectableItemBackground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout"
         app:layout_constraintVertical_bias="1.0" />

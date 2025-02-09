@@ -1,6 +1,9 @@
 package com.menasy.heskit;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -10,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
@@ -42,6 +46,15 @@ public class Start extends Fragment {
         binding.empBut.setOnClickListener(v -> {
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).navigateToEmployees();
+            }
+        });
+
+        binding.poweredByTxtView.setOnClickListener(v -> {
+            try {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/menasy"));
+                startActivity(browserIntent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(getContext(), "Tarayıcı bulunamadı!", Toast.LENGTH_SHORT).show();
             }
         });
     }
