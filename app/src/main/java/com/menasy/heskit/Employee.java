@@ -19,9 +19,10 @@ public class Employee implements Serializable
     private int id;
     private long dbId;
     private int[] dateIn;
+    private int[] dismissDate;
     private String name;
     private String surName;
-
+    private boolean dismissCheck;
     private int totalNotWorksDay;
     private long totalMoney;
     private long totalTransfer;
@@ -43,6 +44,8 @@ public class Employee implements Serializable
         this.dateIn = new int[3];
         this.name = name;
         this.surName = surName;
+        this.dismissCheck = false;
+        this.dismissDate = null;
         this.empPaymentLst = new ArrayList<>();
         this.empTransferLst = new ArrayList<>();
         this.empNotWorksDayLst = new ArrayList<>();
@@ -67,7 +70,13 @@ public class Employee implements Serializable
         Calendar startDate = Calendar.getInstance();
         startDate.set(dateIn[2], dateIn[1]-1, dateIn[0]);
 
-        Calendar endDate = Calendar.getInstance();
+        Calendar endDate;
+        if (this.dismissDate != null) {
+            endDate = Calendar.getInstance();
+            endDate.set(dismissDate[2], dismissDate[1]-1, dismissDate[0]);
+        } else {
+            endDate = Calendar.getInstance();
+        }
 
         long difference = endDate.getTimeInMillis() - startDate.getTimeInMillis();
         return (int) (difference / (1000 * 60 * 60 * 24)) + 1;
@@ -225,5 +234,33 @@ public class Employee implements Serializable
                 executor.shutdown(); // Thread'i kapat
             }
         });
+    }
+
+    public int[] getDismissDate() { return dismissDate; }
+    public void setDismissDate(int[] dismissDateArray) {
+        if(dismissDateArray != null && dismissDateArray.length == 3) {
+            this.dismissDate = new int[3];
+            this.dismissDate[0] = dismissDateArray[0];
+            this.dismissDate[1] = dismissDateArray[1];
+            this.dismissDate[2] = dismissDateArray[2];
+        } else {
+            this.dismissDate = null;
+        }
+    }
+
+    public String getDismissDateStr() {
+        if(dismissDate == null) return "Çalışıyor";
+        return dismissDate[0] + "." + dismissDate[1] + "." + dismissDate[2];
+    }
+    public void setDismissCheck(boolean val)
+    {
+        this.dismissCheck = val;
+    }
+    public boolean getDismissCheck()
+    {
+        return  this.dismissCheck;
+    }
+    public boolean isDismissed() {
+        return dismissDate != null;
     }
 }

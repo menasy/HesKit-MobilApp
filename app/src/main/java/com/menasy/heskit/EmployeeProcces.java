@@ -1,6 +1,8 @@
 package com.menasy.heskit;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -18,6 +20,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.menasy.heskit.databinding.FragmentEmployeeProccesBinding;
 
+import java.util.Calendar;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -83,16 +87,45 @@ public class EmployeeProcces extends Fragment {
         setFormattedText(textView, label, value, color);
     }
 
+    private void setDateTextWithColors(TextView textView, String startDate, String dismissDate) {
+        String dateInfo = "Başlangıç Tarihi: " + startDate;
+        String dismissInfo = dismissDate.isEmpty() ? "" : "\n\nİş Çıkış Tarihi:  " + dismissDate;
+        SpannableString spannable = new SpannableString(dateInfo + dismissInfo);
+
+        spannable.setSpan(new ForegroundColorSpan(Color.WHITE), 0, 18, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(new ForegroundColorSpan(Color.CYAN), 18, 18 + startDate.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        if (!dismissInfo.isEmpty()) {
+            int dismissStart = dateInfo.length() + 2;
+
+            spannable.setSpan(new ForegroundColorSpan(Color.WHITE), dismissStart, dismissStart + 20, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannable.setSpan(new ForegroundColorSpan(Color.CYAN), dismissStart + 18, spannable.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        textView.setText(spannable);
+    }
+
+
     private void setupUI()
     {
+        boolean isDismissed = selectedEmp.getDismissDate() != null;
+        selectedEmp.setDismissCheck(!isDismissed);
+        String dismissInfo = "";
+        if (isDismissed) {
+            dismissInfo = selectedEmp.getDismissDateStr();
+            bnd.dismissEmpBut.setEnabled(false);
+            bnd.dismissEmpBut.setBackgroundColor(Color.DKGRAY);
+            bnd.dismissEmpBut.setText("İşten Çıkarıldı");
+        }
+        String dateInfo = selectedEmp.getDateInStr();
+
+        setDateTextWithColors(bnd.dateInTxt, dateInfo, dismissInfo);
         bnd.empProcTitleTxt.setText(selectedEmp.getNameAndSurname());
-        setStyledText(bnd.dateInTxt, "Başlangıç Tarihi: ", selectedEmp.getDateInStr() + "", false);
         setStyledText(bnd.countDayTxt, "Çalıştığı Gün: ", selectedEmp.getWorksDay() + "", false);
         setStyledText(bnd.takedMoneyTxtView, "Harçlık: ", selectedEmp.getTotalMoney() + "₺", true);
         setStyledText(bnd.makedTotalTransfer, "Havale: ", selectedEmp.getTotalTransfer() + "₺", true);
         setStyledText(bnd.empNotWorksDayTxtView, "Çalışmadığı Gün: ", selectedEmp.getTotalNotWorksDay() + "", false);
         setStyledText(bnd.totalOverDayTxtView, "Toplam Mesai: ", selectedEmp.getTotalOverDay() + "", false);
-
     }
 
     private void setupButtons() {
@@ -125,6 +158,8 @@ public class EmployeeProcces extends Fragment {
                     .addToBackStack(null)
                     .commit();
         });
+
+        bnd.dismissEmpBut.setOnClickListener(v -> showDismissConfirmation());
     }
 
     private void showDeleteConfirmation() {
@@ -178,6 +213,88 @@ public class EmployeeProcces extends Fragment {
                 db.endTransaction();
                 if (!executor.isShutdown()) {
                     executor.shutdown();
+                }
+            }
+        });
+    }
+    private void showDismissConfirmation() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("İşten Çıkarma Onayı")
+                .setMessage(selectedEmp.getNameAndSurname() + " işten çıkarılsın mı?")
+                .setPositiveButton("Evet", (d, w) -> showDatePickerDialog())
+                .setNegativeButton("İptal", null)
+                .show();
+    }
+    private void showDatePickerDialog() {
+        Toast.makeText(getContext(), "İşten ayrılma tarihini giriniz !", Toast.LENGTH_LONG).show();
+        final Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePicker = new DatePickerDialog(
+                requireContext(),
+                (view, selectedYear, selectedMonth, selectedDay) -> {
+
+                    String formattedDate = String.format(Locale.getDefault(),
+                            "%02d.%02d.%d",
+                            selectedDay,
+                            selectedMonth + 1,
+                            selectedYear
+                    );
+
+                    dismissEmployeeWithDate(formattedDate);
+                },
+                year, month, day
+        );
+
+        datePicker.show();
+    }
+    private void dismissEmployeeWithDate(String selectedDate) {
+        executor.execute(() -> {
+            SQLiteDatabase db = null;
+            try {
+                int[] parsedDate = DateUtils.parseDateArray(selectedDate);
+                if(parsedDate == null) {
+                    throw new IllegalArgumentException("Geçersiz tarih formatı!");
+                }
+
+                DBHelper dbHelper = Singleton.getInstance().getDataBase();
+                db = dbHelper.getWritableDatabase();
+                db.beginTransaction();
+
+
+                ContentValues values = new ContentValues();
+                values.put("dismissDate", selectedDate);
+                db.update(
+                        DBHelper.TABLE_EMPLOYEES,
+                        values,
+                        "id=?",
+                        new String[]{String.valueOf(selectedEmp.getDbId())}
+                );
+
+                selectedEmp.setDismissDate(parsedDate);
+                selectedEmp.setDismissCheck(false);
+                db.setTransactionSuccessful();
+
+                requireActivity().runOnUiThread(() -> {
+                    Calisanlar.loadEmployeeDataFromDB();
+                    setupUI();
+                    Toast.makeText(getContext(), "Çalışan " + selectedDate + " tarihinde işten çıkarıldı", Toast.LENGTH_SHORT).show();
+                });
+
+            } catch(Exception e) {
+                Log.e("DISMISS_ERROR", "Hata: ", e);
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "Hata: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
+            } finally {
+                if(db != null) {
+                    try {
+                        db.endTransaction();
+                    } catch(Exception e) {
+                        Log.e("DISMISS_ERROR", "Transaction hatası: ", e);
+                    }
                 }
             }
         });

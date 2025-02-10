@@ -19,13 +19,11 @@
         android:layout_marginHorizontal="32dp"
         android:layout_marginVertical="24dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="7dp"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="53dp"
         android:background="@drawable/bg_stats_card"
         android:orientation="vertical"
         android:padding="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout9"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -157,101 +155,70 @@
 
     <LinearLayout
         android:id="@+id/linearLayout9"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="38dp"
+        android:layout_marginTop="24dp"
         android:gravity="center"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/deleteEmpBut"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout7">
 
-        <!-- Butonlar için yatay LinearLayout -->
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Butonlar için Grid benzeri bir yapı -->
+        <GridLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:columnCount="2"
+            android:rowCount="2"
+            android:padding="8dp">
 
             <Button
                 android:id="@+id/getAddPaymentFragmentBut"
-                android:layout_width="164dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
-                android:backgroundTint="@color/material_on_surface_emphasis_high_type"
-                android:text="Harçlık"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                style="@style/ButtonStyle"
+                android:text="Harçlık" />
 
             <Button
                 android:id="@+id/getHavaleFragmentBut"
-                android:layout_width="164dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:backgroundTint="@color/material_on_surface_emphasis_high_type"
-                android:text="Havale"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
+                style="@style/ButtonStyle"
+                android:text="Havale" />
 
             <Button
                 android:id="@+id/empAddNotWorksDayBut"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="12dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
-                android:backgroundTint="@color/material_on_surface_emphasis_high_type"
-                android:text="Çalışılmayan Gün"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                style="@style/ButtonStyle"
+                android:text="Çalışılmayan Gün" />
 
             <Button
                 android:id="@+id/empGetOverDayFragment"
-                android:layout_width="164dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="8dp"
-                android:backgroundTint="@color/material_on_surface_emphasis_high_type"
-                android:text="Mesai"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- Butonlar için ikinci yatay LinearLayout -->
+                style="@style/ButtonStyle"
+                android:text="Mesai" />
+        </GridLayout>
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/deleteEmpBut"
-        android:layout_width="157dp"
-        android:layout_height="61dp"
-        android:layout_gravity="center"
-        android:layout_marginBottom="66dp"
-        android:backgroundTint="#A61010"
-        android:text="Çalışanı Sil"
-        android:textSize="15sp"
-        android:textStyle="bold"
+    <LinearLayout
+        android:id="@+id/linearLayout12"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="28dp"
+        android:gravity="center"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout9" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout9">
+
+        <Button
+            android:id="@+id/deleteEmpBut"
+            style="@style/DeleteButtonStyle"
+            android:textColor="@color/white"
+            android:text="Çalışanı Sil" />
+
+        <Button
+            android:id="@+id/dismissEmpBut"
+            android:textColor="@color/white"
+            style="@style/DeleteButtonStyle"
+            android:text="İşten Çıkar" />
+    </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

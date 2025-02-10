@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="HesKit">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-02-05T23:50:22.152068442Z">
+        <DropdownSelection timestamp="2025-02-10T20:56:41.438393705Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=R68WB02V4MN" />

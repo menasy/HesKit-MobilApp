@@ -74,13 +74,17 @@ public class CalisanAdapter extends RecyclerView.Adapter<CalisanAdapter.CalisanH
         holder.binding.calisanRecText.setText(spannable);
 
         // Seçim durumuna göre arkaplan rengi
-        holder.itemView.setBackgroundColor(
-                emp.isSelected() ? Color.parseColor("#4CAF50") : Color.TRANSPARENT
-        );
+        int backgroundColor;
+        if (emp.isSelected()) {
+            backgroundColor = Color.parseColor("#4CAF50");
+        } else if (emp.isDismissed()) {
+            backgroundColor = Color.RED;
+        } else {
+            backgroundColor = Color.TRANSPARENT;
+        }
+        holder.itemView.setBackgroundColor(backgroundColor);
 
-        // Seçim göstergesi
         holder.binding.selectionIndicator.setVisibility(emp.isSelected() ? View.VISIBLE : View.GONE);
-
         holder.itemView.setOnClickListener(v -> {
             if (isSelectionMode) {
                 toggleSelection(position);

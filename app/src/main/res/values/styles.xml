@@ -6,4 +6,16 @@
         <item name="android:clipToPadding">false</item>
         <item name="android:scrollbars">vertical</item>
     </style>
+    <style name="ButtonStyle">
+        <item name="android:layout_width">170dp</item>
+        <item name="android:layout_height">55dp</item>
+        <item name="android:layout_margin">8dp</item>
+        <item name="android:backgroundTint">@color/material_on_surface_emphasis_high_type</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="DeleteButtonStyle" parent="ButtonStyle">
+        <item name="android:backgroundTint">#A61010</item>
+    </style>
 </resources>

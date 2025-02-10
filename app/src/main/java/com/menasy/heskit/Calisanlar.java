@@ -255,11 +255,12 @@ public class Calisanlar extends Fragment {
                     int dateInColumnIndex = cursor.getColumnIndex("dateIn");
                     int totalTransferIndex = cursor.getColumnIndex("totalTransfer");
                     int totalOverDayIndex = cursor.getColumnIndex("totalOverDay");
+                    int dismissIndex = cursor.getColumnIndex("dismissDate");
 
                     if (idColumnIndex == -1 || nameColumnIndex == -1 ||
                             surNameColumnIndex == -1 || totalOverDayIndex == -1 ||
                             totalMoneyColumnIndex == -1 || dateInColumnIndex == -1 ||
-                            totalTransferIndex == -1) {
+                            totalTransferIndex == -1 || dismissIndex == -1) {
                         Log.e("DB_ERROR", "Bir veya daha fazla sütun bulunamadı!");
                         continue;
                     }
@@ -273,12 +274,14 @@ public class Calisanlar extends Fragment {
                     long totalTransfer = cursor.getLong(totalTransferIndex);
                     int totalOverDay = cursor.getInt(totalOverDayIndex);
                     int[] dateIn = DateUtils.parseDateArray(dateInStr);
+                    String dismissDateStr = cursor.getString(dismissIndex);
 
                     Employee emp = new Employee(name, surName, dateIn);
                     emp.setDbId(dbId);
                     emp.setTotalMoney(totalMoney);
                     emp.setTotalTransfer(totalTransfer);
                     emp.setTotalOverDay(totalOverDay);
+                    emp.setDismissDate(dismissDateStr != null ? DateUtils.parseDateArray(dismissDateStr) : null);
 
 
                     ArrayList<EmployeePayment> payments = dbHelper.getPaymentsForEmployee(dbId);
