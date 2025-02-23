@@ -2,7 +2,7 @@
 
 [![HesKit](https://github.com/menasy/HesKit-MobilApp/blob/main/OutFiles/heskit.png)](https://github.com/menasy/HesKit-MobilApp/blob/main/OutFiles/heskit.png)
 
-[🎥 Tanıtım Videosunu İzle](https://github.com/menasy/HesKit-MobilApp/raw/main/OutFiles/HesKitVideo.mkv)
+[🎥 Tanıtım Videosunu İzle](https://github.com/menasy/Project_icons/blob/main/HesKitFiles/HesKitVideo.mkv)
 
 [📥 APK Dosyasını İndir](https://github.com/menasy/HesKit-MobilApp/raw/main/OutFiles/HesKitV1.apk)
 
