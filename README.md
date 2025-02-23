@@ -1,6 +1,7 @@
 # HesKit: İşçi Ödemeleri ve Çalışma Yönetim Sistemi
 
-[![HesKit](https://github.com/menasy/HesKit-MobilApp/blob/main/OutFiles/heskit.png)](https://github.com/menasy/HesKit-MobilApp/blob/main/OutFiles/heskit.png)
+![HesKit](https://github.com/menasy/HesKit-MobilApp/blob/main/OutFiles/heskit.png) <img src="https://github.com/menasy/Project_icons/blob/main/HesKitFiles/MergeImg.webp" width="400"/>
+
 
 [🎥 Tanıtım Videosunu İndir Ve İzle](https://raw.githubusercontent.com/menasy/Project_icons/main/HesKitFiles/HesKitVideo.mkv)
 
